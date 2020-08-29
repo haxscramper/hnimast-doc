@@ -433,8 +433,6 @@ function main() {
     title="mkProcNType[NNode](args: seq[NType[NNode]]): NType[NNode]"><wbr />mk<wbr />Proc<wbr />NType<span class="attachedType">NType</span></a></li>
   <li><a class="reference" href="#mkNTypeNNode%2CNNode"
     title="mkNTypeNNode[NNode](impl: NNode): NType[NNode]"><wbr />mk<wbr />NType<wbr />NNode<span class="attachedType">NType</span></a></li>
-  <li><a class="reference" href="#mkNType%2CNimNode"
-    title="mkNType(impl: NimNode): NType[NimNode]"><wbr />mk<wbr />NType<span class="attachedType">NType</span></a></li>
   <li><a class="reference" href="#mkNType%2CPNode"
     title="mkNType(impl: PNode): NType[PNode]"><wbr />mk<wbr />NType<span class="attachedType">NType</span></a></li>
   <li><a class="reference" href="#mkVarDecl%2Cstring%2CNType%2CNVarDeclKind"
@@ -471,8 +469,6 @@ function main() {
     title="parseEnumImpl(en: NimNode): NEnum"><wbr />parse<wbr />Enum<wbr />Impl<span class="attachedType">NEnum</span></a></li>
   <li><a class="reference" href="#getEnumPref%2CNimNode"
     title="getEnumPref(en: NimNode): string"><wbr />get<wbr />Enum<wbr />Pref<span class="attachedType"></span></a></li>
-  <li><a class="reference" href="#getEnumNames%2CNimNode"
-    title="getEnumNames(en: NimNode): seq[string]"><wbr />get<wbr />Enum<wbr />Names<span class="attachedType"></span></a></li>
   <li><a class="reference" href="#createProcType%2CNimNode%2CNimNode%2CNPragma"
     title="createProcType(p, b: NimNode; annots: NPragma): NimNode"><wbr />create<wbr />Proc<wbr />Type<span class="attachedType">NPragma</span></a></li>
   <li><a class="reference" href="#toNNode%2CProcDecl%5BNNode%5D"
@@ -486,10 +482,6 @@ function main() {
     title="mkProcDeclNode(head: NimNode; rtype: Option[NType[NimNode]];
                args: seq[NIdentDefs[NimNode]]; impl: NimNode;
                pragma: NPragma = NPragma(); exported: bool = true; comment: string = &quot;&quot;): NimNode"><wbr />mk<wbr />Proc<wbr />Decl<wbr />Node<span class="attachedType">NType</span></a></li>
-  <li><a class="reference" href="#mkProcDeclNode%2CPNode%2COption%5BNType%5BPNode%5D%5D%2Cseq%5BPIdentDefs%5D%2CPNode%2CPragma%5BPNode%5D%2Cbool%2Cstring"
-    title="mkProcDeclNode(head: PNode; rtype: Option[NType[PNode]]; args: seq[PIdentDefs];
-               impl: PNode; pragma: Pragma[PNode] = Pragma[PNode]();
-               exported: bool = true; comment: string = &quot;&quot;): PNode"><wbr />mk<wbr />Proc<wbr />Decl<wbr />Node<span class="attachedType">NType</span></a></li>
   <li><a class="reference" href="#mkProcDeclNode%2CNNode%2CopenArray%5Btuple%5Bstring%2CNType%5BNNode%5D%5D%5D%2CNNode%2CPragma%5BNNode%5D%2Cbool%2Cstring"
     title="mkProcDeclNode[NNode](head: NNode; args: openArray[
     tuple[name: string, atype: NType[NNode]]]; impl: NNode;
@@ -563,12 +555,8 @@ function main() {
     title="toNNode[NNode, A](obj: Object[NNode, A]; annotConv: A ~&gt; NNode): NNode"><wbr />to<wbr />NNode<span class="attachedType">Object</span></a></li>
   <li><a class="reference" href="#toNNode%2CObject%5BNNode%2CPragma%5BNNode%5D%5D%2Cbool"
     title="toNNode[NNode](obj: Object[NNode, Pragma[NNode]]; standalone: bool = false): NNode"><wbr />to<wbr />NNode<span class="attachedType">Object</span></a></li>
-  <li><a class="reference" href="#toNimNode%2CNObject%5BNPragma%5D"
-    title="toNimNode(obj: NObject[NPragma]): NimNode"><wbr />to<wbr />Nim<wbr />Node<span class="attachedType">NObject</span></a></li>
   <li><a class="reference" href="#mkOType%2Cstring%2Cseq%5Bstring%5D"
     title="mkOType(name: string; gparams: seq[string] = @[]): NType[ObjTree]"><wbr />mk<wbr />OType<span class="attachedType">NType</span></a></li>
-  <li><a class="reference" href="#%3D%3D%2CObjTree%2CObjTree"
-    title="`==`(lhs, rhs: ObjTree): bool"><wbr />`==`<span class="attachedType">ObjTree</span></a></li>
   <li><a class="reference" href="#%3D%3D%2CObjectField%5BNode%2CA%5D%2CObjectField%5BNode%2CA%5D"
     title="`==`[Node, A](lhs, rhs: ObjectField[Node, A]): bool"><wbr />`==`<span class="attachedType">ObjectField</span></a></li>
   <li><a class="reference" href="#makeObjElem%2Cstring%2CConf"
@@ -587,8 +575,6 @@ function main() {
     title="objAccs(name: string): ObjAccs"><wbr />obj<wbr />Accs<span class="attachedType"></span></a></li>
   <li><a class="reference" href="#objPath%2Cvarargs%5BObjAccs%2C%5D"
     title="objPath(path: varargs[ObjAccs, `objAccs`]): ObjPath"><wbr />obj<wbr />Path<span class="attachedType"></span></a></li>
-  <li><a class="reference" href="#getAtPath%2CObjTree%2CObjPath"
-    title="getAtPath(obj: var ObjTree; path: ObjPath): var ObjTree"><wbr />get<wbr />At<wbr />Path<span class="attachedType">ObjTree</span></a></li>
   <li><a class="reference" href="#makeInitCalls%2CT"
     title="makeInitCalls[T](val: T): NimNode"><wbr />make<wbr />Init<wbr />Calls<span class="attachedType"></span></a></li>
   <li><a class="reference" href="#makeInitAllFields%2CT"
@@ -1454,13 +1440,6 @@ Make <tt class="docutils literal"><span class="pre">NType</span></tt>
 Convert type described in <tt class="docutils literal"><span class="pre">NimNode</span></tt> into <tt class="docutils literal"><span class="pre">NType</span></tt>
 
 </dd>
-<a id="mkNType,NimNode"></a>
-<dt><pre><span class="Keyword">func</span> <a href="#mkNType%2CNimNode"><span class="Identifier">mkNType</span></a><span class="Other">(</span><span class="Identifier">impl</span><span class="Other">:</span> <span class="Identifier">NimNode</span><span class="Other">)</span><span class="Other">:</span> <a href="hnim_ast.html#NType"><span class="Identifier">NType</span></a><span class="Other">[</span><span class="Identifier">NimNode</span><span class="Other">]</span> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">AssertionError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
-<dd>
-
-Convert type described in <tt class="docutils literal"><span class="pre">NimNode</span></tt> into <tt class="docutils literal"><span class="pre">NType</span></tt>
-
-</dd>
 <a id="mkNType,PNode"></a>
 <dt><pre><span class="Keyword">func</span> <a href="#mkNType%2CPNode"><span class="Identifier">mkNType</span></a><span class="Other">(</span><span class="Identifier">impl</span><span class="Other">:</span> <span class="Identifier">PNode</span><span class="Other">)</span><span class="Other">:</span> <a href="hnim_ast.html#NType"><span class="Identifier">NType</span></a><span class="Other">[</span><span class="Identifier">PNode</span><span class="Other">]</span> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">AssertionError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
 <dd>
@@ -1571,25 +1550,17 @@ Check if <tt class="docutils literal"><span class="pre">typeImpl</span></tt> for
 
 </dd>
 <a id="parseEnumImpl,NimNode"></a>
-<dt><pre><span class="Keyword">func</span> <a href="#parseEnumImpl%2CNimNode"><span class="Identifier">parseEnumImpl</span></a><span class="Other">(</span><span class="Identifier">en</span><span class="Other">:</span> <span class="Identifier">NimNode</span><span class="Other">)</span><span class="Other">:</span> <a href="hnim_ast.html#NEnum"><span class="Identifier">NEnum</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">AssertionError</span><span class="Other">,</span> <span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
+<dt><pre><span class="Keyword">func</span> <a href="#parseEnumImpl%2CNimNode"><span class="Identifier">parseEnumImpl</span></a><span class="Other">(</span><span class="Identifier">en</span><span class="Other">:</span> <span class="Identifier">NimNode</span><span class="Other">)</span><span class="Other">:</span> <a href="hnim_ast.html#NEnum"><span class="Identifier">NEnum</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">AssertionError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
 <dd>
 
 
 
 </dd>
 <a id="getEnumPref,NimNode"></a>
-<dt><pre><span class="Keyword">func</span> <a href="#getEnumPref%2CNimNode"><span class="Identifier">getEnumPref</span></a><span class="Other">(</span><span class="Identifier">en</span><span class="Other">:</span> <span class="Identifier">NimNode</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">string</span> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">AssertionError</span><span class="Other">,</span> <span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
+<dt><pre><span class="Keyword">func</span> <a href="#getEnumPref%2CNimNode"><span class="Identifier">getEnumPref</span></a><span class="Other">(</span><span class="Identifier">en</span><span class="Other">:</span> <span class="Identifier">NimNode</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">string</span> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">AssertionError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
 <dd>
 
 Get enum prefix. As per <a class="reference external" href="https://nim-lang.org/docs/nep1.html#introduction-naming-conventions">Nep style guide</a> it is recommended for members of enums should have an identifying prefix, such as an abbreviation of the enum's name. This functions returns this prefix.
-
-</dd>
-<a id="getEnumNames,NimNode"></a>
-<dt><pre><span class="Keyword">func</span> <a href="#getEnumNames%2CNimNode"><span class="Identifier">getEnumNames</span></a><span class="Other">(</span><span class="Identifier">en</span><span class="Other">:</span> <span class="Identifier">NimNode</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">string</span><span class="Other">]</span> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">AssertionError</span><span class="Other">,</span> <span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span>
-    <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
-<dd>
-
-Get list of enum identifier names
 
 </dd>
 <a id="createProcType,NimNode,NimNode,NPragma"></a>
@@ -1628,16 +1599,6 @@ Generate procedure declaration
                    <span class="Identifier">args</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><a href="hnim_ast.html#NIdentDefs"><span class="Identifier">NIdentDefs</span></a><span class="Other">[</span><span class="Identifier">NimNode</span><span class="Other">]</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">impl</span><span class="Other">:</span> <span class="Identifier">NimNode</span><span class="Other">;</span>
                    <span class="Identifier">pragma</span><span class="Other">:</span> <a href="hnim_ast.html#NPragma"><span class="Identifier">NPragma</span></a> <span class="Other">=</span> <a href="hnim_ast.html#NPragma"><span class="Identifier">NPragma</span></a><span class="Other">(</span><span class="Other">)</span><span class="Other">;</span> <span class="Identifier">exported</span><span class="Other">:</span> <span class="Identifier">bool</span> <span class="Other">=</span> <span class="Identifier">true</span><span class="Other">;</span>
                    <span class="Identifier">comment</span><span class="Other">:</span> <span class="Identifier">string</span> <span class="Other">=</span> <span class="StringLit">&quot;&quot;</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">NimNode</span> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">UnpackError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
-<dd>
-
-
-
-</dd>
-<a id="mkProcDeclNode,PNode,Option[NType[PNode]],seq[PIdentDefs],PNode,Pragma[PNode],bool,string"></a>
-<dt><pre><span class="Keyword">func</span> <a href="#mkProcDeclNode%2CPNode%2COption%5BNType%5BPNode%5D%5D%2Cseq%5BPIdentDefs%5D%2CPNode%2CPragma%5BPNode%5D%2Cbool%2Cstring"><span class="Identifier">mkProcDeclNode</span></a><span class="Other">(</span><span class="Identifier">head</span><span class="Other">:</span> <span class="Identifier">PNode</span><span class="Other">;</span> <span class="Identifier">rtype</span><span class="Other">:</span> <span class="Identifier">Option</span><span class="Other">[</span><a href="hnim_ast.html#NType"><span class="Identifier">NType</span></a><span class="Other">[</span><span class="Identifier">PNode</span><span class="Other">]</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">args</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><a href="hnim_ast.html#PIdentDefs"><span class="Identifier">PIdentDefs</span></a><span class="Other">]</span><span class="Other">;</span>
-                   <span class="Identifier">impl</span><span class="Other">:</span> <span class="Identifier">PNode</span><span class="Other">;</span> <span class="Identifier">pragma</span><span class="Other">:</span> <a href="hnim_ast.html#Pragma"><span class="Identifier">Pragma</span></a><span class="Other">[</span><span class="Identifier">PNode</span><span class="Other">]</span> <span class="Other">=</span> <a href="hnim_ast.html#Pragma"><span class="Identifier">Pragma</span></a><span class="Other">[</span><span class="Identifier">PNode</span><span class="Other">]</span><span class="Other">(</span><span class="Other">)</span><span class="Other">;</span>
-                   <span class="Identifier">exported</span><span class="Other">:</span> <span class="Identifier">bool</span> <span class="Other">=</span> <span class="Identifier">true</span><span class="Other">;</span> <span class="Identifier">comment</span><span class="Other">:</span> <span class="Identifier">string</span> <span class="Other">=</span> <span class="StringLit">&quot;&quot;</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">PNode</span> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma">
-    <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">UnpackError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
 <dd>
 
 
@@ -1703,7 +1664,7 @@ Generate procedure declaration
 </dd>
 <a id="eachFieldMut,ObjectBranch[NNode,A],"></a>
 <dt><pre><span class="Keyword">func</span> <a href="#eachFieldMut%2CObjectBranch%5BNNode%2CA%5D%2C"><span class="Identifier">eachFieldMut</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">,</span> <span class="Identifier">A</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">branch</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="hnim_ast.html#ObjectBranch"><span class="Identifier">ObjectBranch</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">,</span> <span class="Identifier">A</span><span class="Other">]</span><span class="Other">;</span>
-                          <span class="Identifier">cb</span><span class="Other">:</span> <span class="Other">(</span><span class="Keyword">var</span> <a href="hnim_ast.html#ObjectField"><span class="Identifier">ObjectField</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">,</span> <span class="Identifier">A</span><span class="Other">]</span> <span class="Operator">~&gt;</span> <span class="Identifier">void</span><span class="Other">)</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">void</span></pre></dt>
+                          <span class="Identifier">cb</span><span class="Other">:</span> <span class="Other">(</span><span class="Keyword">var</span> <span class="Identifier">ObjectField</span><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">,</span> <span class="Identifier">A</span><span class="Other">]</span> <span class="Operator">~&gt;</span> <span class="Identifier">void</span><span class="Other">)</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">void</span></pre></dt>
 <dd>
 
 Execute callback on each field in mutable object branch, recursively.
@@ -1711,7 +1672,7 @@ Execute callback on each field in mutable object branch, recursively.
 </dd>
 <a id="eachFieldMut,Object[NNode,A],"></a>
 <dt><pre><span class="Keyword">func</span> <a href="#eachFieldMut%2CObject%5BNNode%2CA%5D%2C"><span class="Identifier">eachFieldMut</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">,</span> <span class="Identifier">A</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">obj</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="hnim_ast.html#Object"><span class="Identifier">Object</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">,</span> <span class="Identifier">A</span><span class="Other">]</span><span class="Other">;</span>
-                          <span class="Identifier">cb</span><span class="Other">:</span> <span class="Other">(</span><span class="Keyword">var</span> <a href="hnim_ast.html#ObjectField"><span class="Identifier">ObjectField</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">,</span> <span class="Identifier">A</span><span class="Other">]</span> <span class="Operator">~&gt;</span> <span class="Identifier">void</span><span class="Other">)</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">void</span></pre></dt>
+                          <span class="Identifier">cb</span><span class="Other">:</span> <span class="Other">(</span><span class="Keyword">var</span> <span class="Identifier">ObjectField</span><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">,</span> <span class="Identifier">A</span><span class="Other">]</span> <span class="Operator">~&gt;</span> <span class="Identifier">void</span><span class="Other">)</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">void</span></pre></dt>
 <dd>
 
 Execute callback on each field in mutable object, recursively.
@@ -1734,28 +1695,28 @@ Execute callback on each annotation in mutable object, recurisively - all fields
 </dd>
 <a id="eachField,ObjectBranch[NNode,A],"></a>
 <dt><pre><span class="Keyword">func</span> <a href="#eachField%2CObjectBranch%5BNNode%2CA%5D%2C"><span class="Identifier">eachField</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">,</span> <span class="Identifier">A</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">branch</span><span class="Other">:</span> <a href="hnim_ast.html#ObjectBranch"><span class="Identifier">ObjectBranch</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">,</span> <span class="Identifier">A</span><span class="Other">]</span><span class="Other">;</span>
-                       <span class="Identifier">cb</span><span class="Other">:</span> <span class="Other">(</span><a href="hnim_ast.html#ObjectField"><span class="Identifier">ObjectField</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">,</span> <span class="Identifier">A</span><span class="Other">]</span> <span class="Operator">~&gt;</span> <span class="Identifier">void</span><span class="Other">)</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">void</span></pre></dt>
+                       <span class="Identifier">cb</span><span class="Other">:</span> <span class="Other">(</span><span class="Identifier">ObjectField</span><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">,</span> <span class="Identifier">A</span><span class="Other">]</span> <span class="Operator">~&gt;</span> <span class="Identifier">void</span><span class="Other">)</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">void</span></pre></dt>
 <dd>
 
 Execute callback on each field in branch, recursively
 
 </dd>
 <a id="eachField,Object[NNode,A],"></a>
-<dt><pre><span class="Keyword">func</span> <a href="#eachField%2CObject%5BNNode%2CA%5D%2C"><span class="Identifier">eachField</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">,</span> <span class="Identifier">A</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">obj</span><span class="Other">:</span> <a href="hnim_ast.html#Object"><span class="Identifier">Object</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">,</span> <span class="Identifier">A</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">cb</span><span class="Other">:</span> <span class="Other">(</span><a href="hnim_ast.html#ObjectField"><span class="Identifier">ObjectField</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">,</span> <span class="Identifier">A</span><span class="Other">]</span> <span class="Operator">~&gt;</span> <span class="Identifier">void</span><span class="Other">)</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">void</span></pre></dt>
+<dt><pre><span class="Keyword">func</span> <a href="#eachField%2CObject%5BNNode%2CA%5D%2C"><span class="Identifier">eachField</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">,</span> <span class="Identifier">A</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">obj</span><span class="Other">:</span> <a href="hnim_ast.html#Object"><span class="Identifier">Object</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">,</span> <span class="Identifier">A</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">cb</span><span class="Other">:</span> <span class="Other">(</span><span class="Identifier">ObjectField</span><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">,</span> <span class="Identifier">A</span><span class="Other">]</span> <span class="Operator">~&gt;</span> <span class="Identifier">void</span><span class="Other">)</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">void</span></pre></dt>
 <dd>
 
 Execute callback on each field in object, recurisively.
 
 </dd>
 <a id="eachCase,NField[A],NimNode,"></a>
-<dt><pre><span class="Keyword">func</span> <a href="#eachCase%2CNField%5BA%5D%2CNimNode%2C"><span class="Identifier">eachCase</span></a><span class="Other">[</span><span class="Identifier">A</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">fld</span><span class="Other">:</span> <a href="hnim_ast.html#NField"><span class="Identifier">NField</span></a><span class="Other">[</span><span class="Identifier">A</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">objId</span><span class="Other">:</span> <span class="Identifier">NimNode</span><span class="Other">;</span> <span class="Identifier">cb</span><span class="Other">:</span> <span class="Other">(</span><a href="hnim_ast.html#NField"><span class="Identifier">NField</span></a><span class="Other">[</span><span class="Identifier">A</span><span class="Other">]</span> <span class="Operator">~&gt;</span> <span class="Identifier">NimNode</span><span class="Other">)</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">NimNode</span></pre></dt>
+<dt><pre><span class="Keyword">func</span> <a href="#eachCase%2CNField%5BA%5D%2CNimNode%2C"><span class="Identifier">eachCase</span></a><span class="Other">[</span><span class="Identifier">A</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">fld</span><span class="Other">:</span> <a href="hnim_ast.html#NField"><span class="Identifier">NField</span></a><span class="Other">[</span><span class="Identifier">A</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">objId</span><span class="Other">:</span> <span class="Identifier">NimNode</span><span class="Other">;</span> <span class="Identifier">cb</span><span class="Other">:</span> <span class="Other">(</span><span class="Identifier">NField</span><span class="Other">[</span><span class="Identifier">A</span><span class="Other">]</span> <span class="Operator">~&gt;</span> <span class="Identifier">NimNode</span><span class="Other">)</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">NimNode</span></pre></dt>
 <dd>
 
 
 
 </dd>
 <a id="eachCase,NimNode,NObject[A],"></a>
-<dt><pre><span class="Keyword">func</span> <a href="#eachCase%2CNimNode%2CNObject%5BA%5D%2C"><span class="Identifier">eachCase</span></a><span class="Other">[</span><span class="Identifier">A</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">objId</span><span class="Other">:</span> <span class="Identifier">NimNode</span><span class="Other">;</span> <span class="Identifier">obj</span><span class="Other">:</span> <a href="hnim_ast.html#NObject"><span class="Identifier">NObject</span></a><span class="Other">[</span><span class="Identifier">A</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">cb</span><span class="Other">:</span> <span class="Other">(</span><a href="hnim_ast.html#NField"><span class="Identifier">NField</span></a><span class="Other">[</span><span class="Identifier">A</span><span class="Other">]</span> <span class="Operator">~&gt;</span> <span class="Identifier">NimNode</span><span class="Other">)</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">NimNode</span></pre></dt>
+<dt><pre><span class="Keyword">func</span> <a href="#eachCase%2CNimNode%2CNObject%5BA%5D%2C"><span class="Identifier">eachCase</span></a><span class="Other">[</span><span class="Identifier">A</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">objId</span><span class="Other">:</span> <span class="Identifier">NimNode</span><span class="Other">;</span> <span class="Identifier">obj</span><span class="Other">:</span> <a href="hnim_ast.html#NObject"><span class="Identifier">NObject</span></a><span class="Other">[</span><span class="Identifier">A</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">cb</span><span class="Other">:</span> <span class="Other">(</span><span class="Identifier">NField</span><span class="Other">[</span><span class="Identifier">A</span><span class="Other">]</span> <span class="Operator">~&gt;</span> <span class="Identifier">NimNode</span><span class="Other">)</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">NimNode</span></pre></dt>
 <dd>
 
 Recursively generate case statement for object. <tt class="docutils literal"><span class="pre">objid</span></tt> is and identifier for object - case statement will use <tt class="docutils literal"><span class="pre">&lt;objid&gt;.&lt;fldId&gt;</span></tt>. <tt class="docutils literal"><span class="pre">obj</span></tt> is a description for structure. Callback <tt class="docutils literal"><span class="pre">cb</span></tt> will be executed on all fields - both <tt class="docutils literal"><span class="pre">isKind</span></tt> or not.
@@ -1763,7 +1724,7 @@ Recursively generate case statement for object. <tt class="docutils literal"><sp
 </dd>
 <a id="eachParallelCase,NField[A],,"></a>
 <dt><pre><span class="Keyword">func</span> <a href="#eachParallelCase%2CNField%5BA%5D%2C%2C"><span class="Identifier">eachParallelCase</span></a><span class="Other">[</span><span class="Identifier">A</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">fld</span><span class="Other">:</span> <a href="hnim_ast.html#NField"><span class="Identifier">NField</span></a><span class="Other">[</span><span class="Identifier">A</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">objId</span><span class="Other">:</span> <span class="Other">(</span><span class="Identifier">NimNode</span><span class="Other">,</span> <span class="Identifier">NimNode</span><span class="Other">)</span><span class="Other">;</span>
-                        <span class="Identifier">cb</span><span class="Other">:</span> <span class="Other">(</span><a href="hnim_ast.html#NField"><span class="Identifier">NField</span></a><span class="Other">[</span><span class="Identifier">A</span><span class="Other">]</span> <span class="Operator">~&gt;</span> <span class="Identifier">NimNode</span><span class="Other">)</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">NimNode</span></pre></dt>
+                        <span class="Identifier">cb</span><span class="Other">:</span> <span class="Other">(</span><span class="Identifier">NField</span><span class="Other">[</span><span class="Identifier">A</span><span class="Other">]</span> <span class="Operator">~&gt;</span> <span class="Identifier">NimNode</span><span class="Other">)</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">NimNode</span></pre></dt>
 <dd>
 
 
@@ -1771,7 +1732,7 @@ Recursively generate case statement for object. <tt class="docutils literal"><sp
 </dd>
 <a id="eachParallelCase,,NObject[A],"></a>
 <dt><pre><span class="Keyword">func</span> <a href="#eachParallelCase%2C%2CNObject%5BA%5D%2C"><span class="Identifier">eachParallelCase</span></a><span class="Other">[</span><span class="Identifier">A</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">objid</span><span class="Other">:</span> <span class="Other">(</span><span class="Identifier">NimNode</span><span class="Other">,</span> <span class="Identifier">NimNode</span><span class="Other">)</span><span class="Other">;</span> <span class="Identifier">obj</span><span class="Other">:</span> <a href="hnim_ast.html#NObject"><span class="Identifier">NObject</span></a><span class="Other">[</span><span class="Identifier">A</span><span class="Other">]</span><span class="Other">;</span>
-                        <span class="Identifier">cb</span><span class="Other">:</span> <span class="Other">(</span><a href="hnim_ast.html#NField"><span class="Identifier">NField</span></a><span class="Other">[</span><span class="Identifier">A</span><span class="Other">]</span> <span class="Operator">~&gt;</span> <span class="Identifier">NimNode</span><span class="Other">)</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">NimNode</span></pre></dt>
+                        <span class="Identifier">cb</span><span class="Other">:</span> <span class="Other">(</span><span class="Identifier">NField</span><span class="Other">[</span><span class="Identifier">A</span><span class="Other">]</span> <span class="Operator">~&gt;</span> <span class="Identifier">NimNode</span><span class="Other">)</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">NimNode</span></pre></dt>
 <dd>
 
 Generate parallel case statement for two objects in <tt class="docutils literal"><span class="pre">objid</span></tt>. Run callback on each field. Generated case statement will have form <tt class="docutils literal"><span class="pre">if lhs.fld == rhs.fld: case lhs.fld</span></tt>
@@ -1793,7 +1754,7 @@ Generate parallel case statement for two objects in <tt class="docutils literal"
 </dd>
 <a id="eachPath,NField[A],NimNode,NPath[A],"></a>
 <dt><pre><span class="Keyword">func</span> <a href="#eachPath%2CNField%5BA%5D%2CNimNode%2CNPath%5BA%5D%2C"><span class="Identifier">eachPath</span></a><span class="Other">[</span><span class="Identifier">A</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">fld</span><span class="Other">:</span> <a href="hnim_ast.html#NField"><span class="Identifier">NField</span></a><span class="Other">[</span><span class="Identifier">A</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">NimNode</span><span class="Other">;</span> <span class="Identifier">parent</span><span class="Other">:</span> <a href="hnim_ast.html#NPath"><span class="Identifier">NPath</span></a><span class="Other">[</span><span class="Identifier">A</span><span class="Other">]</span><span class="Other">;</span>
-                <span class="Identifier">cb</span><span class="Other">:</span> <span class="Other">(</span><span class="Other">(</span><a href="hnim_ast.html#NPath"><span class="Identifier">NPath</span></a><span class="Other">[</span><span class="Identifier">A</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">seq</span><span class="Other">[</span><a href="hnim_ast.html#NField"><span class="Identifier">NField</span></a><span class="Other">[</span><span class="Identifier">A</span><span class="Other">]</span><span class="Other">]</span><span class="Other">)</span> <span class="Operator">~&gt;</span> <span class="Identifier">NimNode</span><span class="Other">)</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">NimNode</span></pre></dt>
+                <span class="Identifier">cb</span><span class="Other">:</span> <span class="Other">(</span><span class="Other">(</span><span class="Identifier">NPath</span><span class="Other">[</span><span class="Identifier">A</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">NField</span><span class="Other">[</span><span class="Identifier">A</span><span class="Other">]</span><span class="Other">]</span><span class="Other">)</span> <span class="Operator">~&gt;</span> <span class="Identifier">NimNode</span><span class="Other">)</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">NimNode</span></pre></dt>
 <dd>
 
 
@@ -1801,7 +1762,7 @@ Generate parallel case statement for two objects in <tt class="docutils literal"
 </dd>
 <a id="eachPath,NimNode,NObject[A],"></a>
 <dt><pre><span class="Keyword">func</span> <a href="#eachPath%2CNimNode%2CNObject%5BA%5D%2C"><span class="Identifier">eachPath</span></a><span class="Other">[</span><span class="Identifier">A</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Identifier">NimNode</span><span class="Other">;</span> <span class="Identifier">obj</span><span class="Other">:</span> <a href="hnim_ast.html#NObject"><span class="Identifier">NObject</span></a><span class="Other">[</span><span class="Identifier">A</span><span class="Other">]</span><span class="Other">;</span>
-                <span class="Identifier">cb</span><span class="Other">:</span> <span class="Other">(</span><span class="Other">(</span><a href="hnim_ast.html#NPath"><span class="Identifier">NPath</span></a><span class="Other">[</span><span class="Identifier">A</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">seq</span><span class="Other">[</span><a href="hnim_ast.html#NField"><span class="Identifier">NField</span></a><span class="Other">[</span><span class="Identifier">A</span><span class="Other">]</span><span class="Other">]</span><span class="Other">)</span> <span class="Operator">~&gt;</span> <span class="Identifier">NimNode</span><span class="Other">)</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">NimNode</span></pre></dt>
+                <span class="Identifier">cb</span><span class="Other">:</span> <span class="Other">(</span><span class="Other">(</span><span class="Identifier">NPath</span><span class="Other">[</span><span class="Identifier">A</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">NField</span><span class="Other">[</span><span class="Identifier">A</span><span class="Other">]</span><span class="Other">]</span><span class="Other">)</span> <span class="Operator">~&gt;</span> <span class="Identifier">NimNode</span><span class="Other">)</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">NimNode</span></pre></dt>
 <dd>
 
 Visit each group of fields in object described by <tt class="docutils literal"><span class="pre">obj</span></tt> and generate case statement with all possible object paths. Arguments for callback - <tt class="docutils literal"><span class="pre">NPath[A]</span></tt> is a sequence of kind field values that <em>must be active in order for execution to reach this path</em> in case statement. Second argument is a list of fields that can be accessed at that path. TODO:DOC add example
@@ -1842,23 +1803,9 @@ Generate check for object <tt class="docutils literal"><span class="pre">self</s
 
 
 </dd>
-<a id="toNimNode,NObject[NPragma]"></a>
-<dt><pre><span class="Keyword">func</span> <a href="#toNimNode%2CNObject%5BNPragma%5D"><span class="Identifier">toNimNode</span></a><span class="Other">(</span><span class="Identifier">obj</span><span class="Other">:</span> <a href="hnim_ast.html#NObject"><span class="Identifier">NObject</span></a><span class="Other">[</span><a href="hnim_ast.html#NPragma"><span class="Identifier">NPragma</span></a><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">NimNode</span> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">UnpackError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
-<dd>
-
-
-
-</dd>
 <a id="mkOType,string,seq[string]"></a>
 <dt><pre><span class="Keyword">func</span> <a href="#mkOType%2Cstring%2Cseq%5Bstring%5D"><span class="Identifier">mkOType</span></a><span class="Other">(</span><span class="Identifier">name</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">gparams</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">string</span><span class="Other">]</span> <span class="Other">=</span> <span class="Operator">@</span><span class="Other">[</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="hnim_ast.html#NType"><span class="Identifier">NType</span></a><span class="Other">[</span><a href="hnim_ast.html#ObjTree"><span class="Identifier">ObjTree</span></a><span class="Other">]</span> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
     <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
-<dd>
-
-
-
-</dd>
-<a id="==,ObjTree,ObjTree"></a>
-<dt><pre><span class="Keyword">func</span> <a href="#%3D%3D%2CObjTree%2CObjTree"><span class="Identifier">`==`</span></a><span class="Other">(</span><span class="Identifier">lhs</span><span class="Other">,</span> <span class="Identifier">rhs</span><span class="Other">:</span> <a href="hnim_ast.html#ObjTree"><span class="Identifier">ObjTree</span></a><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">bool</span> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
 <dd>
 
 
@@ -1922,14 +1869,6 @@ Generate check for object <tt class="docutils literal"><span class="pre">self</s
 </dd>
 <a id="objPath,varargs[ObjAccs,]"></a>
 <dt><pre><span class="Keyword">func</span> <a href="#objPath%2Cvarargs%5BObjAccs%2C%5D"><span class="Identifier">objPath</span></a><span class="Other">(</span><span class="Identifier">path</span><span class="Other">:</span> <span class="Identifier">varargs</span><span class="Other">[</span><span class="Identifier">ObjAccs</span><span class="Other">,</span> <span class="Other">`</span><span class="Identifier">objAccs</span><span class="Other">`</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">ObjPath</span> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
-<dd>
-
-
-
-</dd>
-<a id="getAtPath,ObjTree,ObjPath"></a>
-<dt><pre><span class="Keyword">func</span> <a href="#getAtPath%2CObjTree%2CObjPath"><span class="Identifier">getAtPath</span></a><span class="Other">(</span><span class="Identifier">obj</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="hnim_ast.html#ObjTree"><span class="Identifier">ObjTree</span></a><span class="Other">;</span> <span class="Identifier">path</span><span class="Other">:</span> <span class="Identifier">ObjPath</span><span class="Other">)</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="hnim_ast.html#ObjTree"><span class="Identifier">ObjTree</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">AssertionError</span><span class="Other">]</span><span class="Other">,</span>
-    <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
 <dd>
 
 
@@ -2023,7 +1962,7 @@ Construct proc type with <tt class="docutils literal"><span class="pre">noSideEf
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br/>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2020-08-27 14:13:54 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2020-08-29 10:41:43 UTC</small>
       </div>
     </div>
   </div>

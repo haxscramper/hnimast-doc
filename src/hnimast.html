@@ -156,11 +156,38 @@ function main() {
   value*: Option[NNode]        ## Optional initialization value"><wbr />NIdent<wbr />Defs<span class="attachedType"></span></a></li>
   <li><a class="reference" href="#PIdentDefs"
     title="PIdentDefs = NIdentDefs[PNode]"><wbr />PIdent<wbr />Defs<span class="attachedType"></span></a></li>
+  <li><a class="reference" href="#EnumFieldVal"
+    title="EnumFieldVal = enum
+  efvNone, efvIdent, efvOrdinal, efvString, efvOrdString"><wbr />Enum<wbr />Field<wbr />Val<span class="attachedType"></span></a></li>
+  <li><a class="reference" href="#RTimeOrdinalKind"
+    title="RTimeOrdinalKind = enum
+  rtokInt, rtokBool, rtokChar"><wbr />RTime<wbr />Ordinal<wbr />Kind<span class="attachedType"></span></a></li>
+  <li><a class="reference" href="#EnumField"
+    title="EnumField[NNode] = object
+  comment*: string
+  name*: string
+  value*: Option[NNode]
+  case kind*: EnumFieldVal
+  of efvNone:
+      nil
+
+  of efvIdent:
+      ident*: NNode
+
+  of efvOrdinal:
+      ordVal*: RTimeOrdinal
+
+  of efvString:
+      strval*: string
+
+  of efvOrdString:
+      ordStr*: tuple[ordVal: RTimeOrdinal, strval: string]"><wbr />Enum<wbr />Field<span class="attachedType"></span></a></li>
   <li><a class="reference" href="#Enum"
     title="Enum[NNode] = object
   comment*: string
   name*: string
-  values*: seq[tuple[name: string, value: Option[NNode]]]"><wbr />Enum<span class="attachedType"></span></a></li>
+  values*: seq[EnumField[NNode]]
+  exported*: bool"><wbr />Enum<span class="attachedType"></span></a></li>
   <li><a class="reference" href="#NEnum"
     title="NEnum = Enum[NimNode]"><wbr />NEnum<span class="attachedType"></span></a></li>
   <li><a class="reference" href="#PEnum"
@@ -177,9 +204,13 @@ function main() {
   name*: string
   kind*: ProcKind
   signature*: NType[NNode]     ## Signature of the proc as `ntProc` NType
-  docstr*: string              ## Documentation string
+  comment*: string             ## Documentation string
   genParams*: seq[NType[NNode]] ## Generic parameters for proc
   impl*: NNode                 ## Implementation body"><wbr />Proc<wbr />Decl<span class="attachedType"></span></a></li>
+  <li><a class="reference" href="#PProcDecl"
+    title="PProcDecl = ProcDecl[PNode]"><wbr />PProc<wbr />Decl<span class="attachedType"></span></a></li>
+  <li><a class="reference" href="#NProcDecl"
+    title="NProcDecl = ProcDecl[NimNode]"><wbr />NProc<wbr />Decl<span class="attachedType"></span></a></li>
   <li><a class="reference" href="#ParseCb"
     title="ParseCb[NNode; Annot] = proc (pragma: NNode; kind: ObjectAnnotKind): Annot"><wbr />Parse<wbr />Cb<span class="attachedType"></span></a></li>
   <li><a class="reference" href="#ObjectBranch"
@@ -337,6 +368,8 @@ function main() {
     title="getStrVal(n: NimNode): string"><wbr />get<wbr />Str<wbr />Val<span class="attachedType"></span></a></li>
   <li><a class="reference" href="#getStrVal%2CPNode"
     title="getStrVal(p: PNode): string"><wbr />get<wbr />Str<wbr />Val<span class="attachedType"></span></a></li>
+  <li><a class="reference" href="#dropStmtList%2CPNode"
+    title="dropStmtList(p: PNode): PNode"><wbr />drop<wbr />Stmt<wbr />List<span class="attachedType"></span></a></li>
   <li><a class="reference" href="#subnodes%2CPNode"
     title="subnodes(p: PNode): seq[PNode]"><wbr />subnodes<span class="attachedType"></span></a></li>
   <li><a class="reference" href="#subnodes%2CNimNode"
@@ -385,8 +418,14 @@ function main() {
     title="newEmptyPNode(): PNode"><wbr />new<wbr />Empty<wbr />PNode<span class="attachedType"></span></a></li>
   <li><a class="reference" href="#newPLit%2Cint"
     title="newPLit(i: int): PNode"><wbr />new<wbr />PLit<span class="attachedType"></span></a></li>
+  <li><a class="reference" href="#newPLit%2CBiggestInt"
+    title="newPLit(i: BiggestInt): PNode"><wbr />new<wbr />PLit<span class="attachedType"></span></a></li>
+  <li><a class="reference" href="#newPLit%2Cchar"
+    title="newPLit(c: char): PNode"><wbr />new<wbr />PLit<span class="attachedType"></span></a></li>
   <li><a class="reference" href="#newPLit%2Cstring"
     title="newPLit(i: string): PNode"><wbr />new<wbr />PLit<span class="attachedType"></span></a></li>
+  <li><a class="reference" href="#newPIdentColonString%2Cstring%2Cstring"
+    title="newPIdentColonString(key, value: string): PNode"><wbr />new<wbr />PIdent<wbr />Colon<wbr />String<span class="attachedType"></span></a></li>
   <li><a class="reference" href="#joinSets%2Cseq%5BNNode%5D"
     title="joinSets[NNode](nodes: seq[NNode]): NNode"><wbr />join<wbr />Sets<span class="attachedType"></span></a></li>
   <li><a class="reference" href="#toBracket%2Cseq%5BNimNode%5D"
@@ -397,22 +436,26 @@ function main() {
     title="getElem(pragma: NPragma; name: string): Option[NimNode]"><wbr />get<wbr />Elem<span class="attachedType">NPragma</span></a></li>
   <li><a class="reference" href="#getElem%2COption%5BNPragma%5D%2Cstring"
     title="getElem(optPragma: Option[NPragma]; name: string): Option[NimNode]"><wbr />get<wbr />Elem<span class="attachedType">NPragma</span></a></li>
-  <li><a class="reference" href="#mkNNPragma"
-    title="mkNNPragma[NNode](): Pragma[NNode]"><wbr />mk<wbr />NNPragma<span class="attachedType">Pragma</span></a></li>
-  <li><a class="reference" href="#mkNPragma%2Cvarargs%5Bstring%5D"
-    title="mkNPragma(names: varargs[string]): NPragma"><wbr />mk<wbr />NPragma<span class="attachedType">NPragma</span></a></li>
-  <li><a class="reference" href="#mkPPragma%2Cvarargs%5Bstring%5D"
-    title="mkPPragma(names: varargs[string]): PPragma"><wbr />mk<wbr />PPragma<span class="attachedType">PPragma</span></a></li>
-  <li><a class="reference" href="#mkNPragma%2Cvarargs%5BNimNode%5D"
-    title="mkNPragma(names: varargs[NimNode]): NPragma"><wbr />mk<wbr />NPragma<span class="attachedType">NPragma</span></a></li>
-  <li><a class="reference" href="#mkPPragma%2Cvarargs%5BPNode%5D"
-    title="mkPPragma(names: varargs[PNode]): PPragma"><wbr />mk<wbr />PPragma<span class="attachedType">PPragma</span></a></li>
+  <li><a class="reference" href="#newNNPragma"
+    title="newNNPragma[NNode](): Pragma[NNode]"><wbr />new<wbr />NNPragma<span class="attachedType">Pragma</span></a></li>
+  <li><a class="reference" href="#newNPragma%2Cvarargs%5Bstring%5D"
+    title="newNPragma(names: varargs[string]): NPragma"><wbr />new<wbr />NPragma<span class="attachedType">NPragma</span></a></li>
+  <li><a class="reference" href="#newPPragma%2Cvarargs%5Bstring%5D"
+    title="newPPragma(names: varargs[string]): PPragma"><wbr />new<wbr />PPragma<span class="attachedType">PPragma</span></a></li>
+  <li><a class="reference" href="#newNPragma%2Cvarargs%5BNimNode%5D"
+    title="newNPragma(names: varargs[NimNode]): NPragma"><wbr />new<wbr />NPragma<span class="attachedType">NPragma</span></a></li>
+  <li><a class="reference" href="#newPPragma%2Cvarargs%5BPNode%5D"
+    title="newPPragma(names: varargs[PNode]): PPragma"><wbr />new<wbr />PPragma<span class="attachedType">PPragma</span></a></li>
   <li><a class="reference" href="#toNNode%2CPragma%5BNNode%5D"
     title="toNNode[NNode](pragma: Pragma[NNode]): NNode"><wbr />to<wbr />NNode<span class="attachedType">Pragma</span></a></li>
   <li><a class="reference" href="#toNimNode%2CNPragma"
     title="toNimNode(pragma: NPragma): NimNode"><wbr />to<wbr />Nim<wbr />Node<span class="attachedType">NPragma</span></a></li>
   <li><a class="reference" href="#%3D%3D%2CNType%2CNType"
     title="`==`(l, r: NType): bool"><wbr />`==`<span class="attachedType">NType</span></a></li>
+  <li><a class="reference" href="#rType%3D%2CNType%5BNNode%5D%2CNType%5BNNode%5D"
+    title="rType=[NNode](t: var NType[NNode]; val: NType[NNode]): void"><wbr />r<wbr />Type=<span class="attachedType">NType</span></a></li>
+  <li><a class="reference" href="#setRType%2CNType%5BNNode%5D%2CNType%5BNNode%5D"
+    title="setRType[NNode](t: var NType[NNode]; val: NType[NNode]): void"><wbr />set<wbr />RType<span class="attachedType">NType</span></a></li>
   <li><a class="reference" href="#toNIdentDefs%2CopenArray%5Btuple%5Bstring%2CNType%5BNNode%5D%5D%5D"
     title="toNIdentDefs[NNode](args: openArray[tuple[name: string, atype: NType[NNode]]]): seq[
     NIdentDefs[NNode]]"><wbr />to<wbr />NIdent<wbr />Defs<span class="attachedType">NType</span></a></li>
@@ -429,57 +472,74 @@ function main() {
     title="toNFormalParam[NNode](nident: NIdentDefs[NNode]): NNode"><wbr />to<wbr />NFormal<wbr />Param<span class="attachedType">NIdentDefs</span></a></li>
   <li><a class="reference" href="#toFormalParam%2CNIdentDefs%5BNimNode%5D"
     title="toFormalParam(nident: NIdentDefs[NimNode]): NimNode"><wbr />to<wbr />Formal<wbr />Param<span class="attachedType">NIdentDefs</span></a></li>
-  <li><a class="reference" href="#mkNType%2Cstring%2Cseq%5Bstring%5D"
-    title="mkNType(name: string; gparams: seq[string] = @[]): NType[NimNode]"><wbr />mk<wbr />NType<span class="attachedType">NType</span></a></li>
-  <li><a class="reference" href="#mkPType%2Cstring%2Cseq%5Bstring%5D"
-    title="mkPType(name: string; gparams: seq[string] = @[]): NType[PNode]"><wbr />mk<wbr />PType<span class="attachedType">NType</span></a></li>
-  <li><a class="reference" href="#mkNNType%2Cstring%2Cseq%5Bstring%5D"
-    title="mkNNType[NNode](name: string; gparams: seq[string] = @[]): NType[NNode]"><wbr />mk<wbr />NNType<span class="attachedType">NType</span></a></li>
-  <li><a class="reference" href="#mkNType%2Cstring%2CopenArray%5BNType%5BNNode%5D%5D"
-    title="mkNType[NNode](name: string; gparams: openArray[NType[NNode]]): NType[NNode]"><wbr />mk<wbr />NType<span class="attachedType">NType</span></a></li>
-  <li><a class="reference" href="#mkProcNType%2Cseq%5BNType%5BNNode%5D%5D%2CNType%5BNNode%5D%2CPragma%5BNNode%5D"
-    title="mkProcNType[NNode](args: seq[NType[NNode]]; rtype: NType[NNode];
-                   pragma: Pragma[NNode]): NType[NNode]"><wbr />mk<wbr />Proc<wbr />NType<span class="attachedType">NType</span></a></li>
-  <li><a class="reference" href="#mkProcNType%2Cseq%5BNType%5BNNode%5D%5D"
-    title="mkProcNType[NNode](args: seq[NType[NNode]]): NType[NNode]"><wbr />mk<wbr />Proc<wbr />NType<span class="attachedType">NType</span></a></li>
-  <li><a class="reference" href="#mkNTypeNNode%2CNNode"
-    title="mkNTypeNNode[NNode](impl: NNode): NType[NNode]"><wbr />mk<wbr />NType<wbr />NNode<span class="attachedType">NType</span></a></li>
-  <li><a class="reference" href="#mkNType%2CNimNode"
-    title="mkNType(impl: NimNode): NType[NimNode]"><wbr />mk<wbr />NType<span class="attachedType">NType</span></a></li>
-  <li><a class="reference" href="#mkNType%2CPNode"
-    title="mkNType(impl: PNode): NType[PNode]"><wbr />mk<wbr />NType<span class="attachedType">NType</span></a></li>
-  <li><a class="reference" href="#mkVarDecl%2Cstring%2CNType%2CNVarDeclKind"
-    title="mkVarDecl(name: string; vtype: NType; kind: NVarDeclKind = nvdLet): NIdentDefs[NimNode]"><wbr />mk<wbr />Var<wbr />Decl<span class="attachedType">NIdentDefs</span></a></li>
+  <li><a class="reference" href="#newNType%2Cstring%2Cseq%5Bstring%5D"
+    title="newNType(name: string; gparams: seq[string] = @[]): NType[NimNode]"><wbr />new<wbr />NType<span class="attachedType">NType</span></a></li>
+  <li><a class="reference" href="#newPType%2Cstring%2Cseq%5Bstring%5D"
+    title="newPType(name: string; gparams: seq[string] = @[]): NType[PNode]"><wbr />new<wbr />PType<span class="attachedType">NType</span></a></li>
+  <li><a class="reference" href="#newNNType%2Cstring%2Cseq%5Bstring%5D"
+    title="newNNType[NNode](name: string; gparams: seq[string] = @[]): NType[NNode]"><wbr />new<wbr />NNType<span class="attachedType">NType</span></a></li>
+  <li><a class="reference" href="#newNType%2Cstring%2CopenArray%5BNType%5BNNode%5D%5D"
+    title="newNType[NNode](name: string; gparams: openArray[NType[NNode]]): NType[NNode]"><wbr />new<wbr />NType<span class="attachedType">NType</span></a></li>
+  <li><a class="reference" href="#newProcNType%2Cseq%5BNType%5BNNode%5D%5D%2CNType%5BNNode%5D%2CPragma%5BNNode%5D"
+    title="newProcNType[NNode](args: seq[NType[NNode]]; rtype: NType[NNode];
+                    pragma: Pragma[NNode]): NType[NNode]"><wbr />new<wbr />Proc<wbr />NType<span class="attachedType">NType</span></a></li>
+  <li><a class="reference" href="#newProcNType%2Cseq%5BNType%5BNNode%5D%5D"
+    title="newProcNType[NNode](args: seq[NType[NNode]]): NType[NNode]"><wbr />new<wbr />Proc<wbr />NType<span class="attachedType">NType</span></a></li>
+  <li><a class="reference" href="#newNTypeNNode%2CNNode"
+    title="newNTypeNNode[NNode](impl: NNode): NType[NNode]"><wbr />new<wbr />NType<wbr />NNode<span class="attachedType">NType</span></a></li>
+  <li><a class="reference" href="#newNType%2CNimNode"
+    title="newNType(impl: NimNode): NType[NimNode]"><wbr />new<wbr />NType<span class="attachedType">NType</span></a></li>
+  <li><a class="reference" href="#newNType%2CPNode"
+    title="newNType(impl: PNode): NType[PNode]"><wbr />new<wbr />NType<span class="attachedType">NType</span></a></li>
+  <li><a class="reference" href="#newVarDecl%2Cstring%2CNType%2CNVarDeclKind"
+    title="newVarDecl(name: string; vtype: NType; kind: NVarDeclKind = nvdLet): NIdentDefs[NimNode]"><wbr />new<wbr />Var<wbr />Decl<span class="attachedType">NIdentDefs</span></a></li>
   <li><a class="reference" href="#newVarStmt%2Cstring%2CNType%2CNimNode"
     title="newVarStmt(varname: string; vtype: NType; val: NimNode): NimNode"><wbr />new<wbr />Var<wbr />Stmt<span class="attachedType">NType</span></a></li>
-  <li><a class="reference" href="#mkVarDeclNode%2Cstring%2CNType%2CNVarDeclKind"
-    title="mkVarDeclNode(name: string; vtype: NType; kind: NVarDeclKind = nvdLet): NimNode"><wbr />mk<wbr />Var<wbr />Decl<wbr />Node<span class="attachedType">NType</span></a></li>
-  <li><a class="reference" href="#mkNTypeNode%2Cstring%2Cseq%5Bstring%5D"
-    title="mkNTypeNode(name: string; gparams: seq[string]): NimNode"><wbr />mk<wbr />NType<wbr />Node<span class="attachedType"></span></a></li>
-  <li><a class="reference" href="#mkNTypeNode%2Cstring%2Cvarargs%5BNType%5BNNode%5D%5D"
-    title="mkNTypeNode[NNode](name: string; gparams: varargs[NType[NNode]]): NNode"><wbr />mk<wbr />NType<wbr />Node<span class="attachedType">NType</span></a></li>
-  <li><a class="reference" href="#mkCallNode%2CNimNode%2Cstring%2Cseq%5BNimNode%5D%2Cseq%5BNType%5BNimNode%5D%5D"
-    title="mkCallNode(dotHead: NimNode; name: string; args: seq[NimNode];
-           genParams: seq[NType[NimNode]] = @[]): NimNode"><wbr />mk<wbr />Call<wbr />Node<span class="attachedType">NType</span></a></li>
-  <li><a class="reference" href="#mkCallNode%2Cstring%2Cseq%5BNimNode%5D%2Cseq%5BNType%5BNimNode%5D%5D"
-    title="mkCallNode(name: string; args: seq[NimNode]; genParams: seq[NType[NimNode]] = @[]): NimNode"><wbr />mk<wbr />Call<wbr />Node<span class="attachedType">NType</span></a></li>
-  <li><a class="reference" href="#mkCallNode%2Cstring%2CopenArray%5BNType%5D%2Cvarargs%5BNimNode%5D"
-    title="mkCallNode(name: string; gentypes: openArray[NType]; args: varargs[NimNode]): NimNode"><wbr />mk<wbr />Call<wbr />Node<span class="attachedType">NType</span></a></li>
-  <li><a class="reference" href="#mkCallNode%2CNimNode%2Cstring%2CopenArray%5BNType%5BNimNode%5D%5D"
-    title="mkCallNode(arg: NimNode; name: string; gentypes: openArray[NType[NimNode]] = @[]): NimNode"><wbr />mk<wbr />Call<wbr />Node<span class="attachedType">NType</span></a></li>
-  <li><a class="reference" href="#mkCallNode%2CNimNode%2Cstring%2CopenArray%5BNType%5D%2Cseq%5BNimNode%5D"
-    title="mkCallNode(dotHead: NimNode; name: string; gentypes: openArray[NType];
-           args: seq[NimNode]): NimNode"><wbr />mk<wbr />Call<wbr />Node<span class="attachedType">NType</span></a></li>
+  <li><a class="reference" href="#newVarDeclNode%2Cstring%2CNType%2CNVarDeclKind"
+    title="newVarDeclNode(name: string; vtype: NType; kind: NVarDeclKind = nvdLet): NimNode"><wbr />new<wbr />Var<wbr />Decl<wbr />Node<span class="attachedType">NType</span></a></li>
+  <li><a class="reference" href="#newNTypeNode%2Cstring%2Cseq%5Bstring%5D"
+    title="newNTypeNode(name: string; gparams: seq[string]): NimNode"><wbr />new<wbr />NType<wbr />Node<span class="attachedType"></span></a></li>
+  <li><a class="reference" href="#newNTypeNode%2Cstring%2Cvarargs%5BNType%5BNNode%5D%5D"
+    title="newNTypeNode[NNode](name: string; gparams: varargs[NType[NNode]]): NNode"><wbr />new<wbr />NType<wbr />Node<span class="attachedType">NType</span></a></li>
+  <li><a class="reference" href="#newCallNode%2CNimNode%2Cstring%2Cseq%5BNimNode%5D%2Cseq%5BNType%5BNimNode%5D%5D"
+    title="newCallNode(dotHead: NimNode; name: string; args: seq[NimNode];
+            genParams: seq[NType[NimNode]] = @[]): NimNode"><wbr />new<wbr />Call<wbr />Node<span class="attachedType">NType</span></a></li>
+  <li><a class="reference" href="#newCallNode%2Cstring%2Cseq%5BNimNode%5D%2Cseq%5BNType%5BNimNode%5D%5D"
+    title="newCallNode(name: string; args: seq[NimNode]; genParams: seq[NType[NimNode]] = @[]): NimNode"><wbr />new<wbr />Call<wbr />Node<span class="attachedType">NType</span></a></li>
+  <li><a class="reference" href="#newCallNode%2Cstring%2CopenArray%5BNType%5D%2Cvarargs%5BNimNode%5D"
+    title="newCallNode(name: string; gentypes: openArray[NType]; args: varargs[NimNode]): NimNode"><wbr />new<wbr />Call<wbr />Node<span class="attachedType">NType</span></a></li>
+  <li><a class="reference" href="#newCallNode%2CNimNode%2Cstring%2CopenArray%5BNType%5BNimNode%5D%5D"
+    title="newCallNode(arg: NimNode; name: string; gentypes: openArray[NType[NimNode]] = @[]): NimNode"><wbr />new<wbr />Call<wbr />Node<span class="attachedType">NType</span></a></li>
+  <li><a class="reference" href="#newCallNode%2CNimNode%2Cstring%2CopenArray%5BNType%5D%2Cseq%5BNimNode%5D"
+    title="newCallNode(dotHead: NimNode; name: string; gentypes: openArray[NType];
+            args: seq[NimNode]): NimNode"><wbr />new<wbr />Call<wbr />Node<span class="attachedType">NType</span></a></li>
   <li><a class="reference" href="#toNTypeAst"
     title="toNTypeAst[T](): NType"><wbr />to<wbr />NType<wbr />Ast<span class="attachedType">NType</span></a></li>
   <li><a class="reference" href="#%24%2CNType"
     title="`$`(nt: NType): string"><wbr />`$`<span class="attachedType">NType</span></a></li>
   <li><a class="reference" href="#isEnum%2CNimNode"
     title="isEnum(en: NimNode): bool"><wbr />is<wbr />Enum<span class="attachedType"></span></a></li>
+  <li><a class="reference" href="#makeEnumField%2Cstring%2COption%5BNNode%5D%2Cstring"
+    title="makeEnumField[NNode](name: string; value: Option[NNode] = none(NNode);
+                     comment: string = &quot;&quot;): EnumField[NNode]"><wbr />make<wbr />Enum<wbr />Field<span class="attachedType">EnumField</span></a></li>
+  <li><a class="reference" href="#parseEnumField%2CNNode"
+    title="parseEnumField[NNode](fld: NNode): EnumField[NNode]"><wbr />parse<wbr />Enum<wbr />Field<span class="attachedType">EnumField</span></a></li>
+  <li><a class="reference" href="#parseRTimeOrdinal%2CNNode"
+    title="parseRTimeOrdinal[NNode](nnode: NNode): RTimeOrdinal"><wbr />parse<wbr />RTime<wbr />Ordinal<span class="attachedType"></span></a></li>
+  <li><a class="reference" href="#makeRTOrdinal%2Cint"
+    title="makeRTOrdinal(ival: int): RTimeOrdinal"><wbr />make<wbr />RTOrdinal<span class="attachedType"></span></a></li>
+  <li><a class="reference" href="#makeRTOrdinal%2CBiggestInt"
+    title="makeRTOrdinal(ival: BiggestInt): RTimeOrdinal"><wbr />make<wbr />RTOrdinal<span class="attachedType"></span></a></li>
+  <li><a class="reference" href="#makeRTOrdinal%2Cchar"
+    title="makeRTOrdinal(cval: char): RTimeOrdinal"><wbr />make<wbr />RTOrdinal<span class="attachedType"></span></a></li>
+  <li><a class="reference" href="#toNNode%2CRTimeOrdinal"
+    title="toNNode[NNode](ro: RTimeOrdinal): NNode"><wbr />to<wbr />NNode<span class="attachedType"></span></a></li>
+  <li><a class="reference" href="#toNNode%2CEnumField%5BNNode%5D"
+    title="toNNode[NNode](fld: EnumField[NNode]): NNode"><wbr />to<wbr />NNode<span class="attachedType">EnumField</span></a></li>
   <li><a class="reference" href="#toNNode%2CEnum%5BNNode%5D%2Cbool"
     title="toNNode[NNode](en: Enum[NNode]; standalone: bool = false): NNode"><wbr />to<wbr />NNode<span class="attachedType">Enum</span></a></li>
-  <li><a class="reference" href="#parseEnumImpl%2CNimNode"
-    title="parseEnumImpl(en: NimNode): NEnum"><wbr />parse<wbr />Enum<wbr />Impl<span class="attachedType">NEnum</span></a></li>
+  <li><a class="reference" href="#parseEnumImpl%2CNNode"
+    title="parseEnumImpl[NNode](en: NNode): Enum[NNode]"><wbr />parse<wbr />Enum<wbr />Impl<span class="attachedType">Enum</span></a></li>
   <li><a class="reference" href="#getEnumPref%2CNimNode"
     title="getEnumPref(en: NimNode): string"><wbr />get<wbr />Enum<wbr />Pref<span class="attachedType"></span></a></li>
   <li><a class="reference" href="#getEnumNames%2CNimNode"
@@ -488,44 +548,44 @@ function main() {
     title="createProcType(p, b: NimNode; annots: NPragma): NimNode"><wbr />create<wbr />Proc<wbr />Type<span class="attachedType">NPragma</span></a></li>
   <li><a class="reference" href="#toNNode%2CProcDecl%5BNNode%5D"
     title="toNNode[NNode](pr: ProcDecl[NNode]): NNode"><wbr />to<wbr />NNode<span class="attachedType">ProcDecl</span></a></li>
-  <li><a class="reference" href="#mkProcDeclNNode%2CNNode%2COption%5BNType%5BNNode%5D%5D%2Cseq%5BNIdentDefs%5BNNode%5D%5D%2CNNode%2CPragma%5BNNode%5D%2Cbool%2Cstring"
-    title="mkProcDeclNNode[NNode](procHead: NNode; rtype: Option[NType[NNode]];
-                       args: seq[NIdentDefs[NNode]]; impl: NNode;
+  <li><a class="reference" href="#newProcDeclNNode%2CNNode%2COption%5BNType%5BNNode%5D%5D%2Cseq%5BNIdentDefs%5BNNode%5D%5D%2CNNode%2CPragma%5BNNode%5D%2Cbool%2Cstring"
+    title="newProcDeclNNode[NNode](procHead: NNode; rtype: Option[NType[NNode]];
+                        args: seq[NIdentDefs[NNode]]; impl: NNode;
+                        pragma: Pragma[NNode] = Pragma[NNode]();
+                        exported: bool = true; comment: string = &quot;&quot;): NNode"><wbr />new<wbr />Proc<wbr />Decl<wbr />NNode<span class="attachedType">NType</span></a></li>
+  <li><a class="reference" href="#newProcDeclNode%2CNimNode%2COption%5BNType%5BNimNode%5D%5D%2Cseq%5BNIdentDefs%5BNimNode%5D%5D%2CNimNode%2CNPragma%2Cbool%2Cstring"
+    title="newProcDeclNode(head: NimNode; rtype: Option[NType[NimNode]];
+                args: seq[NIdentDefs[NimNode]]; impl: NimNode;
+                pragma: NPragma = NPragma(); exported: bool = true; comment: string = &quot;&quot;): NimNode"><wbr />new<wbr />Proc<wbr />Decl<wbr />Node<span class="attachedType">NType</span></a></li>
+  <li><a class="reference" href="#newProcDeclNode%2CPNode%2COption%5BNType%5BPNode%5D%5D%2Cseq%5BPIdentDefs%5D%2CPNode%2CPragma%5BPNode%5D%2Cbool%2Cstring"
+    title="newProcDeclNode(head: PNode; rtype: Option[NType[PNode]]; args: seq[PIdentDefs];
+                impl: PNode; pragma: Pragma[PNode] = Pragma[PNode]();
+                exported: bool = true; comment: string = &quot;&quot;): PNode"><wbr />new<wbr />Proc<wbr />Decl<wbr />Node<span class="attachedType">NType</span></a></li>
+  <li><a class="reference" href="#newProcDeclNode%2CNNode%2CopenArray%5Btuple%5Bstring%2CNType%5BNNode%5D%5D%5D%2CNNode%2CPragma%5BNNode%5D%2Cbool%2Cstring"
+    title="newProcDeclNode[NNode](head: NNode; args: openArray[
+    tuple[name: string, atype: NType[NNode]]]; impl: NNode;
                        pragma: Pragma[NNode] = Pragma[NNode]();
-                       exported: bool = true; comment: string = &quot;&quot;): NNode"><wbr />mk<wbr />Proc<wbr />Decl<wbr />NNode<span class="attachedType">NType</span></a></li>
-  <li><a class="reference" href="#mkProcDeclNode%2CNimNode%2COption%5BNType%5BNimNode%5D%5D%2Cseq%5BNIdentDefs%5BNimNode%5D%5D%2CNimNode%2CNPragma%2Cbool%2Cstring"
-    title="mkProcDeclNode(head: NimNode; rtype: Option[NType[NimNode]];
-               args: seq[NIdentDefs[NimNode]]; impl: NimNode;
-               pragma: NPragma = NPragma(); exported: bool = true; comment: string = &quot;&quot;): NimNode"><wbr />mk<wbr />Proc<wbr />Decl<wbr />Node<span class="attachedType">NType</span></a></li>
-  <li><a class="reference" href="#mkProcDeclNode%2CPNode%2COption%5BNType%5BPNode%5D%5D%2Cseq%5BPIdentDefs%5D%2CPNode%2CPragma%5BPNode%5D%2Cbool%2Cstring"
-    title="mkProcDeclNode(head: PNode; rtype: Option[NType[PNode]]; args: seq[PIdentDefs];
-               impl: PNode; pragma: Pragma[PNode] = Pragma[PNode]();
-               exported: bool = true; comment: string = &quot;&quot;): PNode"><wbr />mk<wbr />Proc<wbr />Decl<wbr />Node<span class="attachedType">NType</span></a></li>
-  <li><a class="reference" href="#mkProcDeclNode%2CNNode%2CopenArray%5Btuple%5Bstring%2CNType%5BNNode%5D%5D%5D%2CNNode%2CPragma%5BNNode%5D%2Cbool%2Cstring"
-    title="mkProcDeclNode[NNode](head: NNode; args: openArray[
+                       exported: bool = true; comment: string = &quot;&quot;): NNode"><wbr />new<wbr />Proc<wbr />Decl<wbr />Node<span class="attachedType">NType</span></a></li>
+  <li><a class="reference" href="#newProcDeclNode%2CopenArray%5BNNode%5D%2CNType%2CopenArray%5Btuple%5Bstring%2CNType%5BNNode%5D%5D%5D%2CNNode%2CPragma%5BNNode%5D%2Cbool%2Cstring"
+    title="newProcDeclNode[NNode](accq: openArray[NNode]; rtype: NType; args: openArray[
     tuple[name: string, atype: NType[NNode]]]; impl: NNode;
-                      pragma: Pragma[NNode] = Pragma[NNode]();
-                      exported: bool = true; comment: string = &quot;&quot;): NNode"><wbr />mk<wbr />Proc<wbr />Decl<wbr />Node<span class="attachedType">NType</span></a></li>
-  <li><a class="reference" href="#mkProcDeclNode%2CopenArray%5BNNode%5D%2CNType%2CopenArray%5Btuple%5Bstring%2CNType%5BNNode%5D%5D%5D%2CNNode%2CPragma%5BNNode%5D%2Cbool%2Cstring"
-    title="mkProcDeclNode[NNode](accq: openArray[NNode]; rtype: NType; args: openArray[
+                       pragma: Pragma[NNode] = Pragma[NNode]();
+                       exported: bool = true; comment: string = &quot;&quot;): NNode"><wbr />new<wbr />Proc<wbr />Decl<wbr />Node<span class="attachedType">NType</span></a></li>
+  <li><a class="reference" href="#newProcDeclNode%2CopenArray%5BNNode%5D%2CopenArray%5Btuple%5Bstring%2CNType%5BNNode%5D%5D%5D%2CNNode%2CPragma%5BNNode%5D%2Cbool%2Cstring"
+    title="newProcDeclNode[NNode](accq: openArray[NNode]; args: openArray[
     tuple[name: string, atype: NType[NNode]]]; impl: NNode;
-                      pragma: Pragma[NNode] = Pragma[NNode]();
-                      exported: bool = true; comment: string = &quot;&quot;): NNode"><wbr />mk<wbr />Proc<wbr />Decl<wbr />Node<span class="attachedType">NType</span></a></li>
-  <li><a class="reference" href="#mkProcDeclNode%2CopenArray%5BNNode%5D%2CopenArray%5Btuple%5Bstring%2CNType%5BNNode%5D%5D%5D%2CNNode%2CPragma%5BNNode%5D%2Cbool%2Cstring"
-    title="mkProcDeclNode[NNode](accq: openArray[NNode]; args: openArray[
+                       pragma: Pragma[NNode] = Pragma[NNode]();
+                       exported: bool = true; comment: string = &quot;&quot;): NNode"><wbr />new<wbr />Proc<wbr />Decl<wbr />Node<span class="attachedType">NType</span></a></li>
+  <li><a class="reference" href="#newProcDeclNode%2CNNode%2CNType%5BNNode%5D%2CopenArray%5Btuple%5Bstring%2CNType%5BNNode%5D%5D%5D%2CNNode%2CPragma%5BNNode%5D%2Cbool%2Cstring"
+    title="newProcDeclNode[NNode](head: NNode; rtype: NType[NNode]; args: openArray[
     tuple[name: string, atype: NType[NNode]]]; impl: NNode;
-                      pragma: Pragma[NNode] = Pragma[NNode]();
-                      exported: bool = true; comment: string = &quot;&quot;): NNode"><wbr />mk<wbr />Proc<wbr />Decl<wbr />Node<span class="attachedType">NType</span></a></li>
-  <li><a class="reference" href="#mkProcDeclNode%2CNNode%2CNType%5BNNode%5D%2CopenArray%5Btuple%5Bstring%2CNType%5BNNode%5D%5D%5D%2CNNode%2CPragma%5BNNode%5D%2Cbool%2Cstring"
-    title="mkProcDeclNode[NNode](head: NNode; rtype: NType[NNode]; args: openArray[
-    tuple[name: string, atype: NType[NNode]]]; impl: NNode;
-                      pragma: Pragma[NNode] = Pragma[NNode]();
-                      exported: bool = true; comment: string = &quot;&quot;): NNode"><wbr />mk<wbr />Proc<wbr />Decl<wbr />Node<span class="attachedType">NType</span></a></li>
-  <li><a class="reference" href="#mkProcDeclNode%2CNNode%2CopenArray%5Btuple%5Bstring%2CNType%5BNNode%5D%2CNVarDeclKind%5D%5D%2CNNode%2CPragma%5BNNode%5D%2Cbool%2Cstring"
-    title="mkProcDeclNode[NNode](head: NNode; args: openArray[
+                       pragma: Pragma[NNode] = Pragma[NNode]();
+                       exported: bool = true; comment: string = &quot;&quot;): NNode"><wbr />new<wbr />Proc<wbr />Decl<wbr />Node<span class="attachedType">NType</span></a></li>
+  <li><a class="reference" href="#newProcDeclNode%2CNNode%2CopenArray%5Btuple%5Bstring%2CNType%5BNNode%5D%2CNVarDeclKind%5D%5D%2CNNode%2CPragma%5BNNode%5D%2Cbool%2Cstring"
+    title="newProcDeclNode[NNode](head: NNode; args: openArray[
     tuple[name: string, atype: NType[NNode], nvd: NVarDeclKind]]; impl: NNode;
-                      pragma: Pragma[NNode] = Pragma[NNode]();
-                      exported: bool = true; comment: string = &quot;&quot;): NNode"><wbr />mk<wbr />Proc<wbr />Decl<wbr />Node<span class="attachedType">NType</span></a></li>
+                       pragma: Pragma[NNode] = Pragma[NNode]();
+                       exported: bool = true; comment: string = &quot;&quot;): NNode"><wbr />new<wbr />Proc<wbr />Decl<wbr />Node<span class="attachedType">NType</span></a></li>
   <li><a class="reference" href="#markedAs%2CNField%5BNPragma%5D%2Cstring"
     title="markedAs(fld: NField[NPragma]; str: string): bool"><wbr />marked<wbr />As<span class="attachedType">NField</span></a></li>
   <li><a class="reference" href="#eachFieldMut%2CObjectBranch%5BNNode%2CA%5D%2C"
@@ -576,8 +636,8 @@ function main() {
     title="toNNode[NNode](obj: Object[NNode, Pragma[NNode]]; standalone: bool = false): NNode"><wbr />to<wbr />NNode<span class="attachedType">Object</span></a></li>
   <li><a class="reference" href="#toNimNode%2CNObject%5BNPragma%5D"
     title="toNimNode(obj: NObject[NPragma]): NimNode"><wbr />to<wbr />Nim<wbr />Node<span class="attachedType">NObject</span></a></li>
-  <li><a class="reference" href="#mkOType%2Cstring%2Cseq%5Bstring%5D"
-    title="mkOType(name: string; gparams: seq[string] = @[]): NType[ObjTree]"><wbr />mk<wbr />OType<span class="attachedType">NType</span></a></li>
+  <li><a class="reference" href="#newOType%2Cstring%2Cseq%5Bstring%5D"
+    title="newOType(name: string; gparams: seq[string] = @[]): NType[ObjTree]"><wbr />new<wbr />OType<span class="attachedType">NType</span></a></li>
   <li><a class="reference" href="#%3D%3D%2CObjTree%2CObjTree"
     title="`==`(lhs, rhs: ObjTree): bool"><wbr />`==`<span class="attachedType">ObjTree</span></a></li>
   <li><a class="reference" href="#%3D%3D%2CObjectField%5BNode%2CA%5D%2CObjectField%5BNode%2CA%5D"
@@ -751,11 +811,55 @@ Identifier declaration
 
 
 </dd>
+<a id="EnumFieldVal"></a>
+<dt><pre><a href="hnimast.html#EnumFieldVal"><span class="Identifier">EnumFieldVal</span></a> <span class="Other">=</span> <span class="Keyword">enum</span>
+  <span class="Identifier">efvNone</span><span class="Other">,</span> <span class="Identifier">efvIdent</span><span class="Other">,</span> <span class="Identifier">efvOrdinal</span><span class="Other">,</span> <span class="Identifier">efvString</span><span class="Other">,</span> <span class="Identifier">efvOrdString</span></pre></dt>
+<dd>
+
+
+
+</dd>
+<a id="RTimeOrdinalKind"></a>
+<dt><pre><a href="hnimast.html#RTimeOrdinalKind"><span class="Identifier">RTimeOrdinalKind</span></a> <span class="Other">=</span> <span class="Keyword">enum</span>
+  <span class="Identifier">rtokInt</span><span class="Other">,</span> <span class="Identifier">rtokBool</span><span class="Other">,</span> <span class="Identifier">rtokChar</span></pre></dt>
+<dd>
+
+
+
+</dd>
+<a id="EnumField"></a>
+<dt><pre><a href="hnimast.html#EnumField"><span class="Identifier">EnumField</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span> <span class="Other">=</span> <span class="Keyword">object</span>
+  <span class="Identifier">comment</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">string</span>
+  <span class="Identifier">name</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">string</span>
+  <span class="Identifier">value</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">Option</span><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span>
+  <span class="Keyword">case</span> <span class="Identifier">kind</span><span class="Operator">*</span><span class="Other">:</span> <a href="hnimast.html#EnumFieldVal"><span class="Identifier">EnumFieldVal</span></a>
+  <span class="Keyword">of</span> <span class="Identifier">efvNone</span><span class="Other">:</span>
+      <span class="Keyword">nil</span>
+
+  <span class="Keyword">of</span> <span class="Identifier">efvIdent</span><span class="Other">:</span>
+      <span class="Identifier">ident</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">NNode</span>
+
+  <span class="Keyword">of</span> <span class="Identifier">efvOrdinal</span><span class="Other">:</span>
+      <span class="Identifier">ordVal</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">RTimeOrdinal</span>
+
+  <span class="Keyword">of</span> <span class="Identifier">efvString</span><span class="Other">:</span>
+      <span class="Identifier">strval</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">string</span>
+
+  <span class="Keyword">of</span> <span class="Identifier">efvOrdString</span><span class="Other">:</span>
+      <span class="Identifier">ordStr</span><span class="Operator">*</span><span class="Other">:</span> <span class="Keyword">tuple</span><span class="Other">[</span><span class="Identifier">ordVal</span><span class="Other">:</span> <span class="Identifier">RTimeOrdinal</span><span class="Other">,</span> <span class="Identifier">strval</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">]</span>
+
+  </pre></dt>
+<dd>
+
+
+
+</dd>
 <a id="Enum"></a>
 <dt><pre><a href="hnimast.html#Enum"><span class="Identifier">Enum</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span> <span class="Other">=</span> <span class="Keyword">object</span>
   <span class="Identifier">comment</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">string</span>
   <span class="Identifier">name</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">string</span>
-  <span class="Identifier">values</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Keyword">tuple</span><span class="Other">[</span><span class="Identifier">name</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">,</span> <span class="Identifier">value</span><span class="Other">:</span> <span class="Identifier">Option</span><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span><span class="Other">]</span><span class="Other">]</span>
+  <span class="Identifier">values</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><a href="hnimast.html#EnumField"><span class="Identifier">EnumField</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span><span class="Other">]</span>
+  <span class="Identifier">exported</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">bool</span>
 </pre></dt>
 <dd>
 
@@ -793,10 +897,24 @@ Procedure kind
   <span class="Identifier">name</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">string</span>
   <span class="Identifier">kind</span><span class="Operator">*</span><span class="Other">:</span> <a href="hnimast.html#ProcKind"><span class="Identifier">ProcKind</span></a>
   <span class="Identifier">signature</span><span class="Operator">*</span><span class="Other">:</span> <a href="hnimast.html#NType"><span class="Identifier">NType</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span>     <span class="Comment">## Signature of the proc as `ntProc` NType</span>
-  <span class="Identifier">docstr</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">string</span>              <span class="Comment">## Documentation string</span>
+  <span class="Identifier">comment</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">string</span>             <span class="Comment">## Documentation string</span>
   <span class="Identifier">genParams</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><a href="hnimast.html#NType"><span class="Identifier">NType</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span><span class="Other">]</span> <span class="Comment">## Generic parameters for proc</span>
   <span class="Identifier">impl</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">NNode</span>                 <span class="Comment">## Implementation body</span>
   </pre></dt>
+<dd>
+
+
+
+</dd>
+<a id="PProcDecl"></a>
+<dt><pre><a href="hnimast.html#PProcDecl"><span class="Identifier">PProcDecl</span></a> <span class="Other">=</span> <a href="hnimast.html#ProcDecl"><span class="Identifier">ProcDecl</span></a><span class="Other">[</span><span class="Identifier">PNode</span><span class="Other">]</span></pre></dt>
+<dd>
+
+
+
+</dd>
+<a id="NProcDecl"></a>
+<dt><pre><a href="hnimast.html#NProcDecl"><span class="Identifier">NProcDecl</span></a> <span class="Other">=</span> <a href="hnimast.html#ProcDecl"><span class="Identifier">ProcDecl</span></a><span class="Other">[</span><span class="Identifier">NimNode</span><span class="Other">]</span></pre></dt>
 <dd>
 
 
@@ -1112,6 +1230,13 @@ Get string value from <tt class="docutils literal"><span class="pre">NimNode</sp
 Get string value from <tt class="docutils literal"><span class="pre">PNode</span></tt>
 
 </dd>
+<a id="dropStmtList,PNode"></a>
+<dt><pre><span class="Keyword">func</span> <a href="#dropStmtList%2CPNode"><span class="Identifier">dropStmtList</span></a><span class="Other">(</span><span class="Identifier">p</span><span class="Other">:</span> <span class="Identifier">PNode</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">PNode</span> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
+<dd>
+
+
+
+</dd>
 <a id="subnodes,PNode"></a>
 <dt><pre><span class="Keyword">func</span> <a href="#subnodes%2CPNode"><span class="Identifier">subnodes</span></a><span class="Other">(</span><span class="Identifier">p</span><span class="Other">:</span> <span class="Identifier">PNode</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">PNode</span><span class="Other">]</span> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
 <dd>
@@ -1281,11 +1406,32 @@ Create new empty PNode
 Create new integer literal <tt class="docutils literal"><span class="pre">PNode</span></tt>
 
 </dd>
+<a id="newPLit,BiggestInt"></a>
+<dt><pre><span class="Keyword">func</span> <a href="#newPLit%2CBiggestInt"><span class="Identifier">newPLit</span></a><span class="Other">(</span><span class="Identifier">i</span><span class="Other">:</span> <span class="Identifier">BiggestInt</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">PNode</span> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
+<dd>
+
+Create new integer literal <tt class="docutils literal"><span class="pre">PNode</span></tt>
+
+</dd>
+<a id="newPLit,char"></a>
+<dt><pre><span class="Keyword">func</span> <a href="#newPLit%2Cchar"><span class="Identifier">newPLit</span></a><span class="Other">(</span><span class="Identifier">c</span><span class="Other">:</span> <span class="Identifier">char</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">PNode</span> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
+<dd>
+
+
+
+</dd>
 <a id="newPLit,string"></a>
 <dt><pre><span class="Keyword">func</span> <a href="#newPLit%2Cstring"><span class="Identifier">newPLit</span></a><span class="Other">(</span><span class="Identifier">i</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">PNode</span> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
 <dd>
 
 Create new string literal <tt class="docutils literal"><span class="pre">PNode</span></tt>
+
+</dd>
+<a id="newPIdentColonString,string,string"></a>
+<dt><pre><span class="Keyword">func</span> <a href="#newPIdentColonString%2Cstring%2Cstring"><span class="Identifier">newPIdentColonString</span></a><span class="Other">(</span><span class="Identifier">key</span><span class="Other">,</span> <span class="Identifier">value</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">PNode</span> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
+<dd>
+
+
 
 </dd>
 <a id="joinSets,seq[NNode]"></a>
@@ -1325,36 +1471,36 @@ Get element named <tt class="docutils literal"><span class="pre">name</span></tt
 Get element from optional annotation
 
 </dd>
-<a id="mkNNPragma"></a>
-<dt><pre><span class="Keyword">func</span> <a href="#mkNNPragma"><span class="Identifier">mkNNPragma</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span><span class="Other">(</span><span class="Other">)</span><span class="Other">:</span> <a href="hnimast.html#Pragma"><span class="Identifier">Pragma</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span></pre></dt>
+<a id="newNNPragma"></a>
+<dt><pre><span class="Keyword">func</span> <a href="#newNNPragma"><span class="Identifier">newNNPragma</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span><span class="Other">(</span><span class="Other">)</span><span class="Other">:</span> <a href="hnimast.html#Pragma"><span class="Identifier">Pragma</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span></pre></dt>
 <dd>
 
 
 
 </dd>
-<a id="mkNPragma,varargs[string]"></a>
-<dt><pre><span class="Keyword">func</span> <a href="#mkNPragma%2Cvarargs%5Bstring%5D"><span class="Identifier">mkNPragma</span></a><span class="Other">(</span><span class="Identifier">names</span><span class="Other">:</span> <span class="Identifier">varargs</span><span class="Other">[</span><span class="Identifier">string</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="hnimast.html#NPragma"><span class="Identifier">NPragma</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
-<dd>
-
-Create pragma using each string as separate name. <tt class="docutils literal"><span class="pre">{.&lt;&lt;name1&gt;, &lt;name2&gt;, ...&gt;.}</span></tt>
-
-</dd>
-<a id="mkPPragma,varargs[string]"></a>
-<dt><pre><span class="Keyword">func</span> <a href="#mkPPragma%2Cvarargs%5Bstring%5D"><span class="Identifier">mkPPragma</span></a><span class="Other">(</span><span class="Identifier">names</span><span class="Other">:</span> <span class="Identifier">varargs</span><span class="Other">[</span><span class="Identifier">string</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="hnimast.html#PPragma"><span class="Identifier">PPragma</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
+<a id="newNPragma,varargs[string]"></a>
+<dt><pre><span class="Keyword">func</span> <a href="#newNPragma%2Cvarargs%5Bstring%5D"><span class="Identifier">newNPragma</span></a><span class="Other">(</span><span class="Identifier">names</span><span class="Other">:</span> <span class="Identifier">varargs</span><span class="Other">[</span><span class="Identifier">string</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="hnimast.html#NPragma"><span class="Identifier">NPragma</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
 <dd>
 
 Create pragma using each string as separate name. <tt class="docutils literal"><span class="pre">{.&lt;&lt;name1&gt;, &lt;name2&gt;, ...&gt;.}</span></tt>
 
 </dd>
-<a id="mkNPragma,varargs[NimNode]"></a>
-<dt><pre><span class="Keyword">func</span> <a href="#mkNPragma%2Cvarargs%5BNimNode%5D"><span class="Identifier">mkNPragma</span></a><span class="Other">(</span><span class="Identifier">names</span><span class="Other">:</span> <span class="Identifier">varargs</span><span class="Other">[</span><span class="Identifier">NimNode</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="hnimast.html#NPragma"><span class="Identifier">NPragma</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
+<a id="newPPragma,varargs[string]"></a>
+<dt><pre><span class="Keyword">func</span> <a href="#newPPragma%2Cvarargs%5Bstring%5D"><span class="Identifier">newPPragma</span></a><span class="Other">(</span><span class="Identifier">names</span><span class="Other">:</span> <span class="Identifier">varargs</span><span class="Other">[</span><span class="Identifier">string</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="hnimast.html#PPragma"><span class="Identifier">PPragma</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
+<dd>
+
+Create pragma using each string as separate name. <tt class="docutils literal"><span class="pre">{.&lt;&lt;name1&gt;, &lt;name2&gt;, ...&gt;.}</span></tt>
+
+</dd>
+<a id="newNPragma,varargs[NimNode]"></a>
+<dt><pre><span class="Keyword">func</span> <a href="#newNPragma%2Cvarargs%5BNimNode%5D"><span class="Identifier">newNPragma</span></a><span class="Other">(</span><span class="Identifier">names</span><span class="Other">:</span> <span class="Identifier">varargs</span><span class="Other">[</span><span class="Identifier">NimNode</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="hnimast.html#NPragma"><span class="Identifier">NPragma</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
 <dd>
 
 Create pragma using each node in <tt class="docutils literal"><span class="pre">name</span></tt> as separate name
 
 </dd>
-<a id="mkPPragma,varargs[PNode]"></a>
-<dt><pre><span class="Keyword">func</span> <a href="#mkPPragma%2Cvarargs%5BPNode%5D"><span class="Identifier">mkPPragma</span></a><span class="Other">(</span><span class="Identifier">names</span><span class="Other">:</span> <span class="Identifier">varargs</span><span class="Other">[</span><span class="Identifier">PNode</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="hnimast.html#PPragma"><span class="Identifier">PPragma</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
+<a id="newPPragma,varargs[PNode]"></a>
+<dt><pre><span class="Keyword">func</span> <a href="#newPPragma%2Cvarargs%5BPNode%5D"><span class="Identifier">newPPragma</span></a><span class="Other">(</span><span class="Identifier">names</span><span class="Other">:</span> <span class="Identifier">varargs</span><span class="Other">[</span><span class="Identifier">PNode</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="hnimast.html#PPragma"><span class="Identifier">PPragma</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
 <dd>
 
 Create pragma using each node in <tt class="docutils literal"><span class="pre">name</span></tt> as separate name
@@ -1376,6 +1522,20 @@ Convert pragma to nim node. If pragma contains no elements <tt class="docutils l
 </dd>
 <a id="==,NType,NType"></a>
 <dt><pre><span class="Keyword">func</span> <a href="#%3D%3D%2CNType%2CNType"><span class="Identifier">`==`</span></a><span class="Other">(</span><span class="Identifier">l</span><span class="Other">,</span> <span class="Identifier">r</span><span class="Other">:</span> <a href="hnimast.html#NType"><span class="Identifier">NType</span></a><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">bool</span></pre></dt>
+<dd>
+
+
+
+</dd>
+<a id="rType=,NType[NNode],NType[NNode]"></a>
+<dt><pre><span class="Keyword">func</span> <a href="#rType%3D%2CNType%5BNNode%5D%2CNType%5BNNode%5D"><span class="Identifier">rType=</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">t</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="hnimast.html#NType"><span class="Identifier">NType</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">val</span><span class="Other">:</span> <a href="hnimast.html#NType"><span class="Identifier">NType</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">void</span></pre></dt>
+<dd>
+
+
+
+</dd>
+<a id="setRType,NType[NNode],NType[NNode]"></a>
+<dt><pre><span class="Keyword">func</span> <a href="#setRType%2CNType%5BNNode%5D%2CNType%5BNNode%5D"><span class="Identifier">setRType</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">t</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="hnimast.html#NType"><span class="Identifier">NType</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">val</span><span class="Other">:</span> <a href="hnimast.html#NType"><span class="Identifier">NType</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">void</span></pre></dt>
 <dd>
 
 
@@ -1433,74 +1593,74 @@ Convert to <tt class="docutils literal"><span class="pre">nnkIdentDefs</span></t
 Convert to <tt class="docutils literal"><span class="pre">nnkIdentDefs</span></tt>
 
 </dd>
-<a id="mkNType,string,seq[string]"></a>
-<dt><pre><span class="Keyword">func</span> <a href="#mkNType%2Cstring%2Cseq%5Bstring%5D"><span class="Identifier">mkNType</span></a><span class="Other">(</span><span class="Identifier">name</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">gparams</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">string</span><span class="Other">]</span> <span class="Other">=</span> <span class="Operator">@</span><span class="Other">[</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="hnimast.html#NType"><span class="Identifier">NType</span></a><span class="Other">[</span><span class="Identifier">NimNode</span><span class="Other">]</span> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
+<a id="newNType,string,seq[string]"></a>
+<dt><pre><span class="Keyword">func</span> <a href="#newNType%2Cstring%2Cseq%5Bstring%5D"><span class="Identifier">newNType</span></a><span class="Other">(</span><span class="Identifier">name</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">gparams</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">string</span><span class="Other">]</span> <span class="Other">=</span> <span class="Operator">@</span><span class="Other">[</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="hnimast.html#NType"><span class="Identifier">NType</span></a><span class="Other">[</span><span class="Identifier">NimNode</span><span class="Other">]</span> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
     <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
 <dd>
 
 Make <tt class="docutils literal"><span class="pre">NType</span></tt> with <tt class="docutils literal"><span class="pre">name</span></tt> as string and <tt class="docutils literal"><span class="pre">gparams</span></tt> as generic parameters
 
 </dd>
-<a id="mkPType,string,seq[string]"></a>
-<dt><pre><span class="Keyword">func</span> <a href="#mkPType%2Cstring%2Cseq%5Bstring%5D"><span class="Identifier">mkPType</span></a><span class="Other">(</span><span class="Identifier">name</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">gparams</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">string</span><span class="Other">]</span> <span class="Other">=</span> <span class="Operator">@</span><span class="Other">[</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="hnimast.html#NType"><span class="Identifier">NType</span></a><span class="Other">[</span><span class="Identifier">PNode</span><span class="Other">]</span> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
+<a id="newPType,string,seq[string]"></a>
+<dt><pre><span class="Keyword">func</span> <a href="#newPType%2Cstring%2Cseq%5Bstring%5D"><span class="Identifier">newPType</span></a><span class="Other">(</span><span class="Identifier">name</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">gparams</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">string</span><span class="Other">]</span> <span class="Other">=</span> <span class="Operator">@</span><span class="Other">[</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="hnimast.html#NType"><span class="Identifier">NType</span></a><span class="Other">[</span><span class="Identifier">PNode</span><span class="Other">]</span> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
     <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
 <dd>
 
 Make <tt class="docutils literal"><span class="pre">NType</span></tt> with <tt class="docutils literal"><span class="pre">name</span></tt> as string and <tt class="docutils literal"><span class="pre">gparams</span></tt> as generic parameters
 
 </dd>
-<a id="mkNNType,string,seq[string]"></a>
-<dt><pre><span class="Keyword">func</span> <a href="#mkNNType%2Cstring%2Cseq%5Bstring%5D"><span class="Identifier">mkNNType</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">name</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">gparams</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">string</span><span class="Other">]</span> <span class="Other">=</span> <span class="Operator">@</span><span class="Other">[</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="hnimast.html#NType"><span class="Identifier">NType</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span></pre></dt>
+<a id="newNNType,string,seq[string]"></a>
+<dt><pre><span class="Keyword">func</span> <a href="#newNNType%2Cstring%2Cseq%5Bstring%5D"><span class="Identifier">newNNType</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">name</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">gparams</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">string</span><span class="Other">]</span> <span class="Other">=</span> <span class="Operator">@</span><span class="Other">[</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="hnimast.html#NType"><span class="Identifier">NType</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span></pre></dt>
 <dd>
 
 
 
 </dd>
-<a id="mkNType,string,openArray[NType[NNode]]"></a>
-<dt><pre><span class="Keyword">func</span> <a href="#mkNType%2Cstring%2CopenArray%5BNType%5BNNode%5D%5D"><span class="Identifier">mkNType</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">name</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">gparams</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><a href="hnimast.html#NType"><span class="Identifier">NType</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="hnimast.html#NType"><span class="Identifier">NType</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span></pre></dt>
+<a id="newNType,string,openArray[NType[NNode]]"></a>
+<dt><pre><span class="Keyword">func</span> <a href="#newNType%2Cstring%2CopenArray%5BNType%5BNNode%5D%5D"><span class="Identifier">newNType</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">name</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">gparams</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><a href="hnimast.html#NType"><span class="Identifier">NType</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="hnimast.html#NType"><span class="Identifier">NType</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span></pre></dt>
 <dd>
 
 Make <tt class="docutils literal"><span class="pre">NType</span></tt>
 
 </dd>
-<a id="mkProcNType,seq[NType[NNode]],NType[NNode],Pragma[NNode]"></a>
-<dt><pre><span class="Keyword">func</span> <a href="#mkProcNType%2Cseq%5BNType%5BNNode%5D%5D%2CNType%5BNNode%5D%2CPragma%5BNNode%5D"><span class="Identifier">mkProcNType</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">args</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><a href="hnimast.html#NType"><span class="Identifier">NType</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">rtype</span><span class="Other">:</span> <a href="hnimast.html#NType"><span class="Identifier">NType</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span><span class="Other">;</span>
-                       <span class="Identifier">pragma</span><span class="Other">:</span> <a href="hnimast.html#Pragma"><span class="Identifier">Pragma</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="hnimast.html#NType"><span class="Identifier">NType</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span></pre></dt>
+<a id="newProcNType,seq[NType[NNode]],NType[NNode],Pragma[NNode]"></a>
+<dt><pre><span class="Keyword">func</span> <a href="#newProcNType%2Cseq%5BNType%5BNNode%5D%5D%2CNType%5BNNode%5D%2CPragma%5BNNode%5D"><span class="Identifier">newProcNType</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">args</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><a href="hnimast.html#NType"><span class="Identifier">NType</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">rtype</span><span class="Other">:</span> <a href="hnimast.html#NType"><span class="Identifier">NType</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span><span class="Other">;</span>
+                        <span class="Identifier">pragma</span><span class="Other">:</span> <a href="hnimast.html#Pragma"><span class="Identifier">Pragma</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="hnimast.html#NType"><span class="Identifier">NType</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span></pre></dt>
 <dd>
 
 
 
 </dd>
-<a id="mkProcNType,seq[NType[NNode]]"></a>
-<dt><pre><span class="Keyword">func</span> <a href="#mkProcNType%2Cseq%5BNType%5BNNode%5D%5D"><span class="Identifier">mkProcNType</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">args</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><a href="hnimast.html#NType"><span class="Identifier">NType</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="hnimast.html#NType"><span class="Identifier">NType</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span></pre></dt>
+<a id="newProcNType,seq[NType[NNode]]"></a>
+<dt><pre><span class="Keyword">func</span> <a href="#newProcNType%2Cseq%5BNType%5BNNode%5D%5D"><span class="Identifier">newProcNType</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">args</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><a href="hnimast.html#NType"><span class="Identifier">NType</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="hnimast.html#NType"><span class="Identifier">NType</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span></pre></dt>
 <dd>
 
 CRreate procedure type with arguments types <tt class="docutils literal"><span class="pre">args</span></tt>, no return type and no pragma annotations.
 
 </dd>
-<a id="mkNTypeNNode,NNode"></a>
-<dt><pre><span class="Keyword">func</span> <a href="#mkNTypeNNode%2CNNode"><span class="Identifier">mkNTypeNNode</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">impl</span><span class="Other">:</span> <span class="Identifier">NNode</span><span class="Other">)</span><span class="Other">:</span> <a href="hnimast.html#NType"><span class="Identifier">NType</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span></pre></dt>
+<a id="newNTypeNNode,NNode"></a>
+<dt><pre><span class="Keyword">func</span> <a href="#newNTypeNNode%2CNNode"><span class="Identifier">newNTypeNNode</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">impl</span><span class="Other">:</span> <span class="Identifier">NNode</span><span class="Other">)</span><span class="Other">:</span> <a href="hnimast.html#NType"><span class="Identifier">NType</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span></pre></dt>
 <dd>
 
 Convert type described in <tt class="docutils literal"><span class="pre">NimNode</span></tt> into <tt class="docutils literal"><span class="pre">NType</span></tt>
 
 </dd>
-<a id="mkNType,NimNode"></a>
-<dt><pre><span class="Keyword">func</span> <a href="#mkNType%2CNimNode"><span class="Identifier">mkNType</span></a><span class="Other">(</span><span class="Identifier">impl</span><span class="Other">:</span> <span class="Identifier">NimNode</span><span class="Other">)</span><span class="Other">:</span> <a href="hnimast.html#NType"><span class="Identifier">NType</span></a><span class="Other">[</span><span class="Identifier">NimNode</span><span class="Other">]</span> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">AssertionError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
+<a id="newNType,NimNode"></a>
+<dt><pre><span class="Keyword">func</span> <a href="#newNType%2CNimNode"><span class="Identifier">newNType</span></a><span class="Other">(</span><span class="Identifier">impl</span><span class="Other">:</span> <span class="Identifier">NimNode</span><span class="Other">)</span><span class="Other">:</span> <a href="hnimast.html#NType"><span class="Identifier">NType</span></a><span class="Other">[</span><span class="Identifier">NimNode</span><span class="Other">]</span> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">AssertionError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
 <dd>
 
 Convert type described in <tt class="docutils literal"><span class="pre">NimNode</span></tt> into <tt class="docutils literal"><span class="pre">NType</span></tt>
 
 </dd>
-<a id="mkNType,PNode"></a>
-<dt><pre><span class="Keyword">func</span> <a href="#mkNType%2CPNode"><span class="Identifier">mkNType</span></a><span class="Other">(</span><span class="Identifier">impl</span><span class="Other">:</span> <span class="Identifier">PNode</span><span class="Other">)</span><span class="Other">:</span> <a href="hnimast.html#NType"><span class="Identifier">NType</span></a><span class="Other">[</span><span class="Identifier">PNode</span><span class="Other">]</span> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">AssertionError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
+<a id="newNType,PNode"></a>
+<dt><pre><span class="Keyword">func</span> <a href="#newNType%2CPNode"><span class="Identifier">newNType</span></a><span class="Other">(</span><span class="Identifier">impl</span><span class="Other">:</span> <span class="Identifier">PNode</span><span class="Other">)</span><span class="Other">:</span> <a href="hnimast.html#NType"><span class="Identifier">NType</span></a><span class="Other">[</span><span class="Identifier">PNode</span><span class="Other">]</span> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">AssertionError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
 <dd>
 
 Convert type described in <tt class="docutils literal"><span class="pre">NimNode</span></tt> into <tt class="docutils literal"><span class="pre">NType</span></tt>
 
 </dd>
-<a id="mkVarDecl,string,NType,NVarDeclKind"></a>
-<dt><pre><span class="Keyword">func</span> <a href="#mkVarDecl%2Cstring%2CNType%2CNVarDeclKind"><span class="Identifier">mkVarDecl</span></a><span class="Other">(</span><span class="Identifier">name</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">vtype</span><span class="Other">:</span> <a href="hnimast.html#NType"><span class="Identifier">NType</span></a><span class="Other">;</span> <span class="Identifier">kind</span><span class="Other">:</span> <a href="hnimast.html#NVarDeclKind"><span class="Identifier">NVarDeclKind</span></a> <span class="Other">=</span> <span class="Identifier">nvdLet</span><span class="Other">)</span><span class="Other">:</span> <a href="hnimast.html#NIdentDefs"><span class="Identifier">NIdentDefs</span></a><span class="Other">[</span>
+<a id="newVarDecl,string,NType,NVarDeclKind"></a>
+<dt><pre><span class="Keyword">func</span> <a href="#newVarDecl%2Cstring%2CNType%2CNVarDeclKind"><span class="Identifier">newVarDecl</span></a><span class="Other">(</span><span class="Identifier">name</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">vtype</span><span class="Other">:</span> <a href="hnimast.html#NType"><span class="Identifier">NType</span></a><span class="Other">;</span> <span class="Identifier">kind</span><span class="Other">:</span> <a href="hnimast.html#NVarDeclKind"><span class="Identifier">NVarDeclKind</span></a> <span class="Other">=</span> <span class="Identifier">nvdLet</span><span class="Other">)</span><span class="Other">:</span> <a href="hnimast.html#NIdentDefs"><span class="Identifier">NIdentDefs</span></a><span class="Other">[</span>
     <span class="Identifier">NimNode</span><span class="Other">]</span></pre></dt>
 <dd>
 
@@ -1514,65 +1674,65 @@ Declare varaible <tt class="docutils literal"><span class="pre">name</span></tt>
 
 
 </dd>
-<a id="mkVarDeclNode,string,NType,NVarDeclKind"></a>
-<dt><pre><span class="Keyword">func</span> <a href="#mkVarDeclNode%2Cstring%2CNType%2CNVarDeclKind"><span class="Identifier">mkVarDeclNode</span></a><span class="Other">(</span><span class="Identifier">name</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">vtype</span><span class="Other">:</span> <a href="hnimast.html#NType"><span class="Identifier">NType</span></a><span class="Other">;</span> <span class="Identifier">kind</span><span class="Other">:</span> <a href="hnimast.html#NVarDeclKind"><span class="Identifier">NVarDeclKind</span></a> <span class="Other">=</span> <span class="Identifier">nvdLet</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">NimNode</span></pre></dt>
+<a id="newVarDeclNode,string,NType,NVarDeclKind"></a>
+<dt><pre><span class="Keyword">func</span> <a href="#newVarDeclNode%2Cstring%2CNType%2CNVarDeclKind"><span class="Identifier">newVarDeclNode</span></a><span class="Other">(</span><span class="Identifier">name</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">vtype</span><span class="Other">:</span> <a href="hnimast.html#NType"><span class="Identifier">NType</span></a><span class="Other">;</span> <span class="Identifier">kind</span><span class="Other">:</span> <a href="hnimast.html#NVarDeclKind"><span class="Identifier">NVarDeclKind</span></a> <span class="Other">=</span> <span class="Identifier">nvdLet</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">NimNode</span></pre></dt>
 <dd>
 
 Create variable declaration <tt class="docutils literal"><span class="pre">name</span></tt> of type <tt class="docutils literal"><span class="pre">vtype</span></tt>
 
 </dd>
-<a id="mkNTypeNode,string,seq[string]"></a>
-<dt><pre><span class="Keyword">func</span> <a href="#mkNTypeNode%2Cstring%2Cseq%5Bstring%5D"><span class="Identifier">mkNTypeNode</span></a><span class="Other">(</span><span class="Identifier">name</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">gparams</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">string</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">NimNode</span> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">UnpackError</span><span class="Other">]</span><span class="Other">,</span>
-    <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
+<a id="newNTypeNode,string,seq[string]"></a>
+<dt><pre><span class="Keyword">func</span> <a href="#newNTypeNode%2Cstring%2Cseq%5Bstring%5D"><span class="Identifier">newNTypeNode</span></a><span class="Other">(</span><span class="Identifier">name</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">gparams</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">string</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">NimNode</span> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma">
+    <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">UnpackError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
 <dd>
 
 Create <tt class="docutils literal"><span class="pre">NimNode</span></tt> for type <tt class="docutils literal"><span class="pre">name[@gparams]</span></tt>
 
 </dd>
-<a id="mkNTypeNode,string,varargs[NType[NNode]]"></a>
-<dt><pre><span class="Keyword">func</span> <a href="#mkNTypeNode%2Cstring%2Cvarargs%5BNType%5BNNode%5D%5D"><span class="Identifier">mkNTypeNode</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">name</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">gparams</span><span class="Other">:</span> <span class="Identifier">varargs</span><span class="Other">[</span><a href="hnimast.html#NType"><span class="Identifier">NType</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">NNode</span></pre></dt>
+<a id="newNTypeNode,string,varargs[NType[NNode]]"></a>
+<dt><pre><span class="Keyword">func</span> <a href="#newNTypeNode%2Cstring%2Cvarargs%5BNType%5BNNode%5D%5D"><span class="Identifier">newNTypeNode</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">name</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">gparams</span><span class="Other">:</span> <span class="Identifier">varargs</span><span class="Other">[</span><a href="hnimast.html#NType"><span class="Identifier">NType</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">NNode</span></pre></dt>
 <dd>
 
 Create <tt class="docutils literal"><span class="pre">NimNode</span></tt> for type <tt class="docutils literal"><span class="pre">name[@gparams]</span></tt>
 
 </dd>
-<a id="mkCallNode,NimNode,string,seq[NimNode],seq[NType[NimNode]]"></a>
-<dt><pre><span class="Keyword">func</span> <a href="#mkCallNode%2CNimNode%2Cstring%2Cseq%5BNimNode%5D%2Cseq%5BNType%5BNimNode%5D%5D"><span class="Identifier">mkCallNode</span></a><span class="Other">(</span><span class="Identifier">dotHead</span><span class="Other">:</span> <span class="Identifier">NimNode</span><span class="Other">;</span> <span class="Identifier">name</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">args</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">NimNode</span><span class="Other">]</span><span class="Other">;</span>
-               <span class="Identifier">genParams</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><a href="hnimast.html#NType"><span class="Identifier">NType</span></a><span class="Other">[</span><span class="Identifier">NimNode</span><span class="Other">]</span><span class="Other">]</span> <span class="Other">=</span> <span class="Operator">@</span><span class="Other">[</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">NimNode</span> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma">
+<a id="newCallNode,NimNode,string,seq[NimNode],seq[NType[NimNode]]"></a>
+<dt><pre><span class="Keyword">func</span> <a href="#newCallNode%2CNimNode%2Cstring%2Cseq%5BNimNode%5D%2Cseq%5BNType%5BNimNode%5D%5D"><span class="Identifier">newCallNode</span></a><span class="Other">(</span><span class="Identifier">dotHead</span><span class="Other">:</span> <span class="Identifier">NimNode</span><span class="Other">;</span> <span class="Identifier">name</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">args</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">NimNode</span><span class="Other">]</span><span class="Other">;</span>
+                <span class="Identifier">genParams</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><a href="hnimast.html#NType"><span class="Identifier">NType</span></a><span class="Other">[</span><span class="Identifier">NimNode</span><span class="Other">]</span><span class="Other">]</span> <span class="Other">=</span> <span class="Operator">@</span><span class="Other">[</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">NimNode</span> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma">
     <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">UnpackError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
 <dd>
 
 Create node <tt class="docutils literal"><span class="pre">dotHead.name[@genParams](genParams)</span></tt>
 
 </dd>
-<a id="mkCallNode,string,seq[NimNode],seq[NType[NimNode]]"></a>
-<dt><pre><span class="Keyword">func</span> <a href="#mkCallNode%2Cstring%2Cseq%5BNimNode%5D%2Cseq%5BNType%5BNimNode%5D%5D"><span class="Identifier">mkCallNode</span></a><span class="Other">(</span><span class="Identifier">name</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">args</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">NimNode</span><span class="Other">]</span><span class="Other">;</span>
-               <span class="Identifier">genParams</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><a href="hnimast.html#NType"><span class="Identifier">NType</span></a><span class="Other">[</span><span class="Identifier">NimNode</span><span class="Other">]</span><span class="Other">]</span> <span class="Other">=</span> <span class="Operator">@</span><span class="Other">[</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">NimNode</span> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma">
+<a id="newCallNode,string,seq[NimNode],seq[NType[NimNode]]"></a>
+<dt><pre><span class="Keyword">func</span> <a href="#newCallNode%2Cstring%2Cseq%5BNimNode%5D%2Cseq%5BNType%5BNimNode%5D%5D"><span class="Identifier">newCallNode</span></a><span class="Other">(</span><span class="Identifier">name</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">args</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">NimNode</span><span class="Other">]</span><span class="Other">;</span>
+                <span class="Identifier">genParams</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><a href="hnimast.html#NType"><span class="Identifier">NType</span></a><span class="Other">[</span><span class="Identifier">NimNode</span><span class="Other">]</span><span class="Other">]</span> <span class="Other">=</span> <span class="Operator">@</span><span class="Other">[</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">NimNode</span> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma">
     <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">UnpackError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
 <dd>
 
 Create node <tt class="docutils literal"><span class="pre">name[@genParams](@args)</span></tt>
 
 </dd>
-<a id="mkCallNode,string,openArray[NType],varargs[NimNode]"></a>
-<dt><pre><span class="Keyword">func</span> <a href="#mkCallNode%2Cstring%2CopenArray%5BNType%5D%2Cvarargs%5BNimNode%5D"><span class="Identifier">mkCallNode</span></a><span class="Other">(</span><span class="Identifier">name</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">gentypes</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><a href="hnimast.html#NType"><span class="Identifier">NType</span></a><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">args</span><span class="Other">:</span> <span class="Identifier">varargs</span><span class="Other">[</span><span class="Identifier">NimNode</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">NimNode</span></pre></dt>
+<a id="newCallNode,string,openArray[NType],varargs[NimNode]"></a>
+<dt><pre><span class="Keyword">func</span> <a href="#newCallNode%2Cstring%2CopenArray%5BNType%5D%2Cvarargs%5BNimNode%5D"><span class="Identifier">newCallNode</span></a><span class="Other">(</span><span class="Identifier">name</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">gentypes</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><a href="hnimast.html#NType"><span class="Identifier">NType</span></a><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">args</span><span class="Other">:</span> <span class="Identifier">varargs</span><span class="Other">[</span><span class="Identifier">NimNode</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">NimNode</span></pre></dt>
 <dd>
 
-Create node <tt class="docutils literal"><span class="pre">name[@gentypes](@args)</span></tt>. Overload with more convinient syntax if you have predefined number of genric parameters - <tt class="docutils literal"><span class="pre">mkCallNode(&quot;name&quot;, [&lt;param&gt;](arg1, arg2))</span></tt> looks almost like regular <tt class="docutils literal"><span class="pre">quote do</span></tt> interpolation.
+Create node <tt class="docutils literal"><span class="pre">name[@gentypes](@args)</span></tt>. Overload with more convinient syntax if you have predefined number of genric parameters - <tt class="docutils literal"><span class="pre">newCallNode(&quot;name&quot;, [&lt;param&gt;](arg1, arg2))</span></tt> looks almost like regular <tt class="docutils literal"><span class="pre">quote do</span></tt> interpolation.
 
 </dd>
-<a id="mkCallNode,NimNode,string,openArray[NType[NimNode]]"></a>
-<dt><pre><span class="Keyword">func</span> <a href="#mkCallNode%2CNimNode%2Cstring%2CopenArray%5BNType%5BNimNode%5D%5D"><span class="Identifier">mkCallNode</span></a><span class="Other">(</span><span class="Identifier">arg</span><span class="Other">:</span> <span class="Identifier">NimNode</span><span class="Other">;</span> <span class="Identifier">name</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span>
-               <span class="Identifier">gentypes</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><a href="hnimast.html#NType"><span class="Identifier">NType</span></a><span class="Other">[</span><span class="Identifier">NimNode</span><span class="Other">]</span><span class="Other">]</span> <span class="Other">=</span> <span class="Operator">@</span><span class="Other">[</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">NimNode</span> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma">
+<a id="newCallNode,NimNode,string,openArray[NType[NimNode]]"></a>
+<dt><pre><span class="Keyword">func</span> <a href="#newCallNode%2CNimNode%2Cstring%2CopenArray%5BNType%5BNimNode%5D%5D"><span class="Identifier">newCallNode</span></a><span class="Other">(</span><span class="Identifier">arg</span><span class="Other">:</span> <span class="Identifier">NimNode</span><span class="Other">;</span> <span class="Identifier">name</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span>
+                <span class="Identifier">gentypes</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><a href="hnimast.html#NType"><span class="Identifier">NType</span></a><span class="Other">[</span><span class="Identifier">NimNode</span><span class="Other">]</span><span class="Other">]</span> <span class="Other">=</span> <span class="Operator">@</span><span class="Other">[</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">NimNode</span> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma">
     <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">UnpackError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
 <dd>
 
 Create call node <tt class="docutils literal"><span class="pre">name[@gentypes](arg)</span></tt>
 
 </dd>
-<a id="mkCallNode,NimNode,string,openArray[NType],seq[NimNode]"></a>
-<dt><pre><span class="Keyword">func</span> <a href="#mkCallNode%2CNimNode%2Cstring%2CopenArray%5BNType%5D%2Cseq%5BNimNode%5D"><span class="Identifier">mkCallNode</span></a><span class="Other">(</span><span class="Identifier">dotHead</span><span class="Other">:</span> <span class="Identifier">NimNode</span><span class="Other">;</span> <span class="Identifier">name</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">gentypes</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><a href="hnimast.html#NType"><span class="Identifier">NType</span></a><span class="Other">]</span><span class="Other">;</span>
-               <span class="Identifier">args</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">NimNode</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">NimNode</span></pre></dt>
+<a id="newCallNode,NimNode,string,openArray[NType],seq[NimNode]"></a>
+<dt><pre><span class="Keyword">func</span> <a href="#newCallNode%2CNimNode%2Cstring%2CopenArray%5BNType%5D%2Cseq%5BNimNode%5D"><span class="Identifier">newCallNode</span></a><span class="Other">(</span><span class="Identifier">dotHead</span><span class="Other">:</span> <span class="Identifier">NimNode</span><span class="Other">;</span> <span class="Identifier">name</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">gentypes</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><a href="hnimast.html#NType"><span class="Identifier">NType</span></a><span class="Other">]</span><span class="Other">;</span>
+                <span class="Identifier">args</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">NimNode</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">NimNode</span></pre></dt>
 <dd>
 
 Create call node <tt class="docutils literal"><span class="pre">dotHead.name[@gentypes](@args)</span></tt>
@@ -1599,6 +1759,63 @@ Convert <tt class="docutils literal"><span class="pre">NType</span></tt> to texu
 Check if <tt class="docutils literal"><span class="pre">typeImpl</span></tt> for <tt class="docutils literal"><span class="pre">en</span></tt> is <tt class="docutils literal"><span class="pre">enum</span></tt>
 
 </dd>
+<a id="makeEnumField,string,Option[NNode],string"></a>
+<dt><pre><span class="Keyword">func</span> <a href="#makeEnumField%2Cstring%2COption%5BNNode%5D%2Cstring"><span class="Identifier">makeEnumField</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">name</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">value</span><span class="Other">:</span> <span class="Identifier">Option</span><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span> <span class="Other">=</span> <span class="Identifier">none</span><span class="Other">(</span><span class="Identifier">NNode</span><span class="Other">)</span><span class="Other">;</span>
+                         <span class="Identifier">comment</span><span class="Other">:</span> <span class="Identifier">string</span> <span class="Other">=</span> <span class="StringLit">&quot;&quot;</span><span class="Other">)</span><span class="Other">:</span> <a href="hnimast.html#EnumField"><span class="Identifier">EnumField</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span></pre></dt>
+<dd>
+
+
+
+</dd>
+<a id="parseEnumField,NNode"></a>
+<dt><pre><span class="Keyword">func</span> <a href="#parseEnumField%2CNNode"><span class="Identifier">parseEnumField</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">fld</span><span class="Other">:</span> <span class="Identifier">NNode</span><span class="Other">)</span><span class="Other">:</span> <a href="hnimast.html#EnumField"><span class="Identifier">EnumField</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span></pre></dt>
+<dd>
+
+
+
+</dd>
+<a id="parseRTimeOrdinal,NNode"></a>
+<dt><pre><span class="Keyword">func</span> <a href="#parseRTimeOrdinal%2CNNode"><span class="Identifier">parseRTimeOrdinal</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">nnode</span><span class="Other">:</span> <span class="Identifier">NNode</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">RTimeOrdinal</span></pre></dt>
+<dd>
+
+
+
+</dd>
+<a id="makeRTOrdinal,int"></a>
+<dt><pre><span class="Keyword">func</span> <a href="#makeRTOrdinal%2Cint"><span class="Identifier">makeRTOrdinal</span></a><span class="Other">(</span><span class="Identifier">ival</span><span class="Other">:</span> <span class="Identifier">int</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">RTimeOrdinal</span> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
+<dd>
+
+
+
+</dd>
+<a id="makeRTOrdinal,BiggestInt"></a>
+<dt><pre><span class="Keyword">func</span> <a href="#makeRTOrdinal%2CBiggestInt"><span class="Identifier">makeRTOrdinal</span></a><span class="Other">(</span><span class="Identifier">ival</span><span class="Other">:</span> <span class="Identifier">BiggestInt</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">RTimeOrdinal</span> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
+<dd>
+
+
+
+</dd>
+<a id="makeRTOrdinal,char"></a>
+<dt><pre><span class="Keyword">func</span> <a href="#makeRTOrdinal%2Cchar"><span class="Identifier">makeRTOrdinal</span></a><span class="Other">(</span><span class="Identifier">cval</span><span class="Other">:</span> <span class="Identifier">char</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">RTimeOrdinal</span> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
+<dd>
+
+
+
+</dd>
+<a id="toNNode,RTimeOrdinal"></a>
+<dt><pre><span class="Keyword">func</span> <a href="#toNNode%2CRTimeOrdinal"><span class="Identifier">toNNode</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">ro</span><span class="Other">:</span> <span class="Identifier">RTimeOrdinal</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">NNode</span></pre></dt>
+<dd>
+
+
+
+</dd>
+<a id="toNNode,EnumField[NNode]"></a>
+<dt><pre><span class="Keyword">func</span> <a href="#toNNode%2CEnumField%5BNNode%5D"><span class="Identifier">toNNode</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">fld</span><span class="Other">:</span> <a href="hnimast.html#EnumField"><span class="Identifier">EnumField</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">NNode</span></pre></dt>
+<dd>
+
+
+
+</dd>
 <a id="toNNode,Enum[NNode],bool"></a>
 <dt><pre><span class="Keyword">func</span> <a href="#toNNode%2CEnum%5BNNode%5D%2Cbool"><span class="Identifier">toNNode</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">en</span><span class="Other">:</span> <a href="hnimast.html#Enum"><span class="Identifier">Enum</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">standalone</span><span class="Other">:</span> <span class="Identifier">bool</span> <span class="Other">=</span> <span class="Identifier">false</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">NNode</span></pre></dt>
 <dd>
@@ -1606,8 +1823,8 @@ Check if <tt class="docutils literal"><span class="pre">typeImpl</span></tt> for
 Convert enum definition to <tt class="docutils literal"><span class="pre">NNode</span></tt>. If <tt class="docutils literal"><span class="pre">standalone</span></tt> is true wrap result in <tt class="docutils literal"><span class="pre">nnkTypeSection</span></tt>, otherwise generate <tt class="docutils literal"><span class="pre">nnkTypeDef</span></tt> only.
 
 </dd>
-<a id="parseEnumImpl,NimNode"></a>
-<dt><pre><span class="Keyword">func</span> <a href="#parseEnumImpl%2CNimNode"><span class="Identifier">parseEnumImpl</span></a><span class="Other">(</span><span class="Identifier">en</span><span class="Other">:</span> <span class="Identifier">NimNode</span><span class="Other">)</span><span class="Other">:</span> <a href="hnimast.html#NEnum"><span class="Identifier">NEnum</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">AssertionError</span><span class="Other">,</span> <span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
+<a id="parseEnumImpl,NNode"></a>
+<dt><pre><span class="Keyword">func</span> <a href="#parseEnumImpl%2CNNode"><span class="Identifier">parseEnumImpl</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">en</span><span class="Other">:</span> <span class="Identifier">NNode</span><span class="Other">)</span><span class="Other">:</span> <a href="hnimast.html#Enum"><span class="Identifier">Enum</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span></pre></dt>
 <dd>
 
 
@@ -1642,11 +1859,11 @@ Copy-past of <tt class="docutils literal"><span class="pre">sugar.createProcType
 
 
 </dd>
-<a id="mkProcDeclNNode,NNode,Option[NType[NNode]],seq[NIdentDefs[NNode]],NNode,Pragma[NNode],bool,string"></a>
-<dt><pre><span class="Keyword">func</span> <a href="#mkProcDeclNNode%2CNNode%2COption%5BNType%5BNNode%5D%5D%2Cseq%5BNIdentDefs%5BNNode%5D%5D%2CNNode%2CPragma%5BNNode%5D%2Cbool%2Cstring"><span class="Identifier">mkProcDeclNNode</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">procHead</span><span class="Other">:</span> <span class="Identifier">NNode</span><span class="Other">;</span> <span class="Identifier">rtype</span><span class="Other">:</span> <span class="Identifier">Option</span><span class="Other">[</span><a href="hnimast.html#NType"><span class="Identifier">NType</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span><span class="Other">]</span><span class="Other">;</span>
-                           <span class="Identifier">args</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><a href="hnimast.html#NIdentDefs"><span class="Identifier">NIdentDefs</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">impl</span><span class="Other">:</span> <span class="Identifier">NNode</span><span class="Other">;</span>
-                           <span class="Identifier">pragma</span><span class="Other">:</span> <a href="hnimast.html#Pragma"><span class="Identifier">Pragma</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span> <span class="Other">=</span> <a href="hnimast.html#Pragma"><span class="Identifier">Pragma</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span><span class="Other">(</span><span class="Other">)</span><span class="Other">;</span>
-                           <span class="Identifier">exported</span><span class="Other">:</span> <span class="Identifier">bool</span> <span class="Other">=</span> <span class="Identifier">true</span><span class="Other">;</span> <span class="Identifier">comment</span><span class="Other">:</span> <span class="Identifier">string</span> <span class="Other">=</span> <span class="StringLit">&quot;&quot;</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">NNode</span></pre></dt>
+<a id="newProcDeclNNode,NNode,Option[NType[NNode]],seq[NIdentDefs[NNode]],NNode,Pragma[NNode],bool,string"></a>
+<dt><pre><span class="Keyword">func</span> <a href="#newProcDeclNNode%2CNNode%2COption%5BNType%5BNNode%5D%5D%2Cseq%5BNIdentDefs%5BNNode%5D%5D%2CNNode%2CPragma%5BNNode%5D%2Cbool%2Cstring"><span class="Identifier">newProcDeclNNode</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">procHead</span><span class="Other">:</span> <span class="Identifier">NNode</span><span class="Other">;</span> <span class="Identifier">rtype</span><span class="Other">:</span> <span class="Identifier">Option</span><span class="Other">[</span><a href="hnimast.html#NType"><span class="Identifier">NType</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span><span class="Other">]</span><span class="Other">;</span>
+                            <span class="Identifier">args</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><a href="hnimast.html#NIdentDefs"><span class="Identifier">NIdentDefs</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">impl</span><span class="Other">:</span> <span class="Identifier">NNode</span><span class="Other">;</span>
+                            <span class="Identifier">pragma</span><span class="Other">:</span> <a href="hnimast.html#Pragma"><span class="Identifier">Pragma</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span> <span class="Other">=</span> <a href="hnimast.html#Pragma"><span class="Identifier">Pragma</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span><span class="Other">(</span><span class="Other">)</span><span class="Other">;</span>
+                            <span class="Identifier">exported</span><span class="Other">:</span> <span class="Identifier">bool</span> <span class="Other">=</span> <span class="Identifier">true</span><span class="Other">;</span> <span class="Identifier">comment</span><span class="Other">:</span> <span class="Identifier">string</span> <span class="Other">=</span> <span class="StringLit">&quot;&quot;</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">NNode</span></pre></dt>
 <dd>
 
 Generate procedure declaration
@@ -1659,71 +1876,71 @@ Generate procedure declaration
 </tbody></table>
 
 </dd>
-<a id="mkProcDeclNode,NimNode,Option[NType[NimNode]],seq[NIdentDefs[NimNode]],NimNode,NPragma,bool,string"></a>
-<dt><pre><span class="Keyword">func</span> <a href="#mkProcDeclNode%2CNimNode%2COption%5BNType%5BNimNode%5D%5D%2Cseq%5BNIdentDefs%5BNimNode%5D%5D%2CNimNode%2CNPragma%2Cbool%2Cstring"><span class="Identifier">mkProcDeclNode</span></a><span class="Other">(</span><span class="Identifier">head</span><span class="Other">:</span> <span class="Identifier">NimNode</span><span class="Other">;</span> <span class="Identifier">rtype</span><span class="Other">:</span> <span class="Identifier">Option</span><span class="Other">[</span><a href="hnimast.html#NType"><span class="Identifier">NType</span></a><span class="Other">[</span><span class="Identifier">NimNode</span><span class="Other">]</span><span class="Other">]</span><span class="Other">;</span>
-                   <span class="Identifier">args</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><a href="hnimast.html#NIdentDefs"><span class="Identifier">NIdentDefs</span></a><span class="Other">[</span><span class="Identifier">NimNode</span><span class="Other">]</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">impl</span><span class="Other">:</span> <span class="Identifier">NimNode</span><span class="Other">;</span>
-                   <span class="Identifier">pragma</span><span class="Other">:</span> <a href="hnimast.html#NPragma"><span class="Identifier">NPragma</span></a> <span class="Other">=</span> <a href="hnimast.html#NPragma"><span class="Identifier">NPragma</span></a><span class="Other">(</span><span class="Other">)</span><span class="Other">;</span> <span class="Identifier">exported</span><span class="Other">:</span> <span class="Identifier">bool</span> <span class="Other">=</span> <span class="Identifier">true</span><span class="Other">;</span>
-                   <span class="Identifier">comment</span><span class="Other">:</span> <span class="Identifier">string</span> <span class="Other">=</span> <span class="StringLit">&quot;&quot;</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">NimNode</span> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">UnpackError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
+<a id="newProcDeclNode,NimNode,Option[NType[NimNode]],seq[NIdentDefs[NimNode]],NimNode,NPragma,bool,string"></a>
+<dt><pre><span class="Keyword">func</span> <a href="#newProcDeclNode%2CNimNode%2COption%5BNType%5BNimNode%5D%5D%2Cseq%5BNIdentDefs%5BNimNode%5D%5D%2CNimNode%2CNPragma%2Cbool%2Cstring"><span class="Identifier">newProcDeclNode</span></a><span class="Other">(</span><span class="Identifier">head</span><span class="Other">:</span> <span class="Identifier">NimNode</span><span class="Other">;</span> <span class="Identifier">rtype</span><span class="Other">:</span> <span class="Identifier">Option</span><span class="Other">[</span><a href="hnimast.html#NType"><span class="Identifier">NType</span></a><span class="Other">[</span><span class="Identifier">NimNode</span><span class="Other">]</span><span class="Other">]</span><span class="Other">;</span>
+                    <span class="Identifier">args</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><a href="hnimast.html#NIdentDefs"><span class="Identifier">NIdentDefs</span></a><span class="Other">[</span><span class="Identifier">NimNode</span><span class="Other">]</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">impl</span><span class="Other">:</span> <span class="Identifier">NimNode</span><span class="Other">;</span>
+                    <span class="Identifier">pragma</span><span class="Other">:</span> <a href="hnimast.html#NPragma"><span class="Identifier">NPragma</span></a> <span class="Other">=</span> <a href="hnimast.html#NPragma"><span class="Identifier">NPragma</span></a><span class="Other">(</span><span class="Other">)</span><span class="Other">;</span> <span class="Identifier">exported</span><span class="Other">:</span> <span class="Identifier">bool</span> <span class="Other">=</span> <span class="Identifier">true</span><span class="Other">;</span>
+                    <span class="Identifier">comment</span><span class="Other">:</span> <span class="Identifier">string</span> <span class="Other">=</span> <span class="StringLit">&quot;&quot;</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">NimNode</span> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">UnpackError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
 <dd>
 
 
 
 </dd>
-<a id="mkProcDeclNode,PNode,Option[NType[PNode]],seq[PIdentDefs],PNode,Pragma[PNode],bool,string"></a>
-<dt><pre><span class="Keyword">func</span> <a href="#mkProcDeclNode%2CPNode%2COption%5BNType%5BPNode%5D%5D%2Cseq%5BPIdentDefs%5D%2CPNode%2CPragma%5BPNode%5D%2Cbool%2Cstring"><span class="Identifier">mkProcDeclNode</span></a><span class="Other">(</span><span class="Identifier">head</span><span class="Other">:</span> <span class="Identifier">PNode</span><span class="Other">;</span> <span class="Identifier">rtype</span><span class="Other">:</span> <span class="Identifier">Option</span><span class="Other">[</span><a href="hnimast.html#NType"><span class="Identifier">NType</span></a><span class="Other">[</span><span class="Identifier">PNode</span><span class="Other">]</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">args</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><a href="hnimast.html#PIdentDefs"><span class="Identifier">PIdentDefs</span></a><span class="Other">]</span><span class="Other">;</span>
-                   <span class="Identifier">impl</span><span class="Other">:</span> <span class="Identifier">PNode</span><span class="Other">;</span> <span class="Identifier">pragma</span><span class="Other">:</span> <a href="hnimast.html#Pragma"><span class="Identifier">Pragma</span></a><span class="Other">[</span><span class="Identifier">PNode</span><span class="Other">]</span> <span class="Other">=</span> <a href="hnimast.html#Pragma"><span class="Identifier">Pragma</span></a><span class="Other">[</span><span class="Identifier">PNode</span><span class="Other">]</span><span class="Other">(</span><span class="Other">)</span><span class="Other">;</span>
-                   <span class="Identifier">exported</span><span class="Other">:</span> <span class="Identifier">bool</span> <span class="Other">=</span> <span class="Identifier">true</span><span class="Other">;</span> <span class="Identifier">comment</span><span class="Other">:</span> <span class="Identifier">string</span> <span class="Other">=</span> <span class="StringLit">&quot;&quot;</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">PNode</span> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma">
+<a id="newProcDeclNode,PNode,Option[NType[PNode]],seq[PIdentDefs],PNode,Pragma[PNode],bool,string"></a>
+<dt><pre><span class="Keyword">func</span> <a href="#newProcDeclNode%2CPNode%2COption%5BNType%5BPNode%5D%5D%2Cseq%5BPIdentDefs%5D%2CPNode%2CPragma%5BPNode%5D%2Cbool%2Cstring"><span class="Identifier">newProcDeclNode</span></a><span class="Other">(</span><span class="Identifier">head</span><span class="Other">:</span> <span class="Identifier">PNode</span><span class="Other">;</span> <span class="Identifier">rtype</span><span class="Other">:</span> <span class="Identifier">Option</span><span class="Other">[</span><a href="hnimast.html#NType"><span class="Identifier">NType</span></a><span class="Other">[</span><span class="Identifier">PNode</span><span class="Other">]</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">args</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><a href="hnimast.html#PIdentDefs"><span class="Identifier">PIdentDefs</span></a><span class="Other">]</span><span class="Other">;</span>
+                    <span class="Identifier">impl</span><span class="Other">:</span> <span class="Identifier">PNode</span><span class="Other">;</span> <span class="Identifier">pragma</span><span class="Other">:</span> <a href="hnimast.html#Pragma"><span class="Identifier">Pragma</span></a><span class="Other">[</span><span class="Identifier">PNode</span><span class="Other">]</span> <span class="Other">=</span> <a href="hnimast.html#Pragma"><span class="Identifier">Pragma</span></a><span class="Other">[</span><span class="Identifier">PNode</span><span class="Other">]</span><span class="Other">(</span><span class="Other">)</span><span class="Other">;</span>
+                    <span class="Identifier">exported</span><span class="Other">:</span> <span class="Identifier">bool</span> <span class="Other">=</span> <span class="Identifier">true</span><span class="Other">;</span> <span class="Identifier">comment</span><span class="Other">:</span> <span class="Identifier">string</span> <span class="Other">=</span> <span class="StringLit">&quot;&quot;</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">PNode</span> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma">
     <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">UnpackError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
 <dd>
 
 
 
 </dd>
-<a id="mkProcDeclNode,NNode,openArray[tuple[string,NType[NNode]]],NNode,Pragma[NNode],bool,string"></a>
-<dt><pre><span class="Keyword">func</span> <a href="#mkProcDeclNode%2CNNode%2CopenArray%5Btuple%5Bstring%2CNType%5BNNode%5D%5D%5D%2CNNode%2CPragma%5BNNode%5D%2Cbool%2Cstring"><span class="Identifier">mkProcDeclNode</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">head</span><span class="Other">:</span> <span class="Identifier">NNode</span><span class="Other">;</span> <span class="Identifier">args</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span>
+<a id="newProcDeclNode,NNode,openArray[tuple[string,NType[NNode]]],NNode,Pragma[NNode],bool,string"></a>
+<dt><pre><span class="Keyword">func</span> <a href="#newProcDeclNode%2CNNode%2CopenArray%5Btuple%5Bstring%2CNType%5BNNode%5D%5D%5D%2CNNode%2CPragma%5BNNode%5D%2Cbool%2Cstring"><span class="Identifier">newProcDeclNode</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">head</span><span class="Other">:</span> <span class="Identifier">NNode</span><span class="Other">;</span> <span class="Identifier">args</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span>
     <span class="Keyword">tuple</span><span class="Other">[</span><span class="Identifier">name</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">,</span> <span class="Identifier">atype</span><span class="Other">:</span> <a href="hnimast.html#NType"><span class="Identifier">NType</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span><span class="Other">]</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">impl</span><span class="Other">:</span> <span class="Identifier">NNode</span><span class="Other">;</span>
-                          <span class="Identifier">pragma</span><span class="Other">:</span> <a href="hnimast.html#Pragma"><span class="Identifier">Pragma</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span> <span class="Other">=</span> <a href="hnimast.html#Pragma"><span class="Identifier">Pragma</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span><span class="Other">(</span><span class="Other">)</span><span class="Other">;</span>
-                          <span class="Identifier">exported</span><span class="Other">:</span> <span class="Identifier">bool</span> <span class="Other">=</span> <span class="Identifier">true</span><span class="Other">;</span> <span class="Identifier">comment</span><span class="Other">:</span> <span class="Identifier">string</span> <span class="Other">=</span> <span class="StringLit">&quot;&quot;</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">NNode</span></pre></dt>
+                           <span class="Identifier">pragma</span><span class="Other">:</span> <a href="hnimast.html#Pragma"><span class="Identifier">Pragma</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span> <span class="Other">=</span> <a href="hnimast.html#Pragma"><span class="Identifier">Pragma</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span><span class="Other">(</span><span class="Other">)</span><span class="Other">;</span>
+                           <span class="Identifier">exported</span><span class="Other">:</span> <span class="Identifier">bool</span> <span class="Other">=</span> <span class="Identifier">true</span><span class="Other">;</span> <span class="Identifier">comment</span><span class="Other">:</span> <span class="Identifier">string</span> <span class="Other">=</span> <span class="StringLit">&quot;&quot;</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">NNode</span></pre></dt>
 <dd>
 
 
 
 </dd>
-<a id="mkProcDeclNode,openArray[NNode],NType,openArray[tuple[string,NType[NNode]]],NNode,Pragma[NNode],bool,string"></a>
-<dt><pre><span class="Keyword">func</span> <a href="#mkProcDeclNode%2CopenArray%5BNNode%5D%2CNType%2CopenArray%5Btuple%5Bstring%2CNType%5BNNode%5D%5D%5D%2CNNode%2CPragma%5BNNode%5D%2Cbool%2Cstring"><span class="Identifier">mkProcDeclNode</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">accq</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">rtype</span><span class="Other">:</span> <a href="hnimast.html#NType"><span class="Identifier">NType</span></a><span class="Other">;</span> <span class="Identifier">args</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span>
+<a id="newProcDeclNode,openArray[NNode],NType,openArray[tuple[string,NType[NNode]]],NNode,Pragma[NNode],bool,string"></a>
+<dt><pre><span class="Keyword">func</span> <a href="#newProcDeclNode%2CopenArray%5BNNode%5D%2CNType%2CopenArray%5Btuple%5Bstring%2CNType%5BNNode%5D%5D%5D%2CNNode%2CPragma%5BNNode%5D%2Cbool%2Cstring"><span class="Identifier">newProcDeclNode</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">accq</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">rtype</span><span class="Other">:</span> <a href="hnimast.html#NType"><span class="Identifier">NType</span></a><span class="Other">;</span> <span class="Identifier">args</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span>
     <span class="Keyword">tuple</span><span class="Other">[</span><span class="Identifier">name</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">,</span> <span class="Identifier">atype</span><span class="Other">:</span> <span class="Identifier">NType</span><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span><span class="Other">]</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">impl</span><span class="Other">:</span> <span class="Identifier">NNode</span><span class="Other">;</span>
-                          <span class="Identifier">pragma</span><span class="Other">:</span> <a href="hnimast.html#Pragma"><span class="Identifier">Pragma</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span> <span class="Other">=</span> <a href="hnimast.html#Pragma"><span class="Identifier">Pragma</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span><span class="Other">(</span><span class="Other">)</span><span class="Other">;</span>
-                          <span class="Identifier">exported</span><span class="Other">:</span> <span class="Identifier">bool</span> <span class="Other">=</span> <span class="Identifier">true</span><span class="Other">;</span> <span class="Identifier">comment</span><span class="Other">:</span> <span class="Identifier">string</span> <span class="Other">=</span> <span class="StringLit">&quot;&quot;</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">NNode</span></pre></dt>
+                           <span class="Identifier">pragma</span><span class="Other">:</span> <a href="hnimast.html#Pragma"><span class="Identifier">Pragma</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span> <span class="Other">=</span> <a href="hnimast.html#Pragma"><span class="Identifier">Pragma</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span><span class="Other">(</span><span class="Other">)</span><span class="Other">;</span>
+                           <span class="Identifier">exported</span><span class="Other">:</span> <span class="Identifier">bool</span> <span class="Other">=</span> <span class="Identifier">true</span><span class="Other">;</span> <span class="Identifier">comment</span><span class="Other">:</span> <span class="Identifier">string</span> <span class="Other">=</span> <span class="StringLit">&quot;&quot;</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">NNode</span></pre></dt>
 <dd>
 
 
 
 </dd>
-<a id="mkProcDeclNode,openArray[NNode],openArray[tuple[string,NType[NNode]]],NNode,Pragma[NNode],bool,string"></a>
-<dt><pre><span class="Keyword">func</span> <a href="#mkProcDeclNode%2CopenArray%5BNNode%5D%2CopenArray%5Btuple%5Bstring%2CNType%5BNNode%5D%5D%5D%2CNNode%2CPragma%5BNNode%5D%2Cbool%2Cstring"><span class="Identifier">mkProcDeclNode</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">accq</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">args</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span>
+<a id="newProcDeclNode,openArray[NNode],openArray[tuple[string,NType[NNode]]],NNode,Pragma[NNode],bool,string"></a>
+<dt><pre><span class="Keyword">func</span> <a href="#newProcDeclNode%2CopenArray%5BNNode%5D%2CopenArray%5Btuple%5Bstring%2CNType%5BNNode%5D%5D%5D%2CNNode%2CPragma%5BNNode%5D%2Cbool%2Cstring"><span class="Identifier">newProcDeclNode</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">accq</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">args</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span>
     <span class="Keyword">tuple</span><span class="Other">[</span><span class="Identifier">name</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">,</span> <span class="Identifier">atype</span><span class="Other">:</span> <a href="hnimast.html#NType"><span class="Identifier">NType</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span><span class="Other">]</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">impl</span><span class="Other">:</span> <span class="Identifier">NNode</span><span class="Other">;</span>
-                          <span class="Identifier">pragma</span><span class="Other">:</span> <a href="hnimast.html#Pragma"><span class="Identifier">Pragma</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span> <span class="Other">=</span> <a href="hnimast.html#Pragma"><span class="Identifier">Pragma</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span><span class="Other">(</span><span class="Other">)</span><span class="Other">;</span>
-                          <span class="Identifier">exported</span><span class="Other">:</span> <span class="Identifier">bool</span> <span class="Other">=</span> <span class="Identifier">true</span><span class="Other">;</span> <span class="Identifier">comment</span><span class="Other">:</span> <span class="Identifier">string</span> <span class="Other">=</span> <span class="StringLit">&quot;&quot;</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">NNode</span></pre></dt>
+                           <span class="Identifier">pragma</span><span class="Other">:</span> <a href="hnimast.html#Pragma"><span class="Identifier">Pragma</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span> <span class="Other">=</span> <a href="hnimast.html#Pragma"><span class="Identifier">Pragma</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span><span class="Other">(</span><span class="Other">)</span><span class="Other">;</span>
+                           <span class="Identifier">exported</span><span class="Other">:</span> <span class="Identifier">bool</span> <span class="Other">=</span> <span class="Identifier">true</span><span class="Other">;</span> <span class="Identifier">comment</span><span class="Other">:</span> <span class="Identifier">string</span> <span class="Other">=</span> <span class="StringLit">&quot;&quot;</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">NNode</span></pre></dt>
 <dd>
 
 
 
 </dd>
-<a id="mkProcDeclNode,NNode,NType[NNode],openArray[tuple[string,NType[NNode]]],NNode,Pragma[NNode],bool,string"></a>
-<dt><pre><span class="Keyword">func</span> <a href="#mkProcDeclNode%2CNNode%2CNType%5BNNode%5D%2CopenArray%5Btuple%5Bstring%2CNType%5BNNode%5D%5D%5D%2CNNode%2CPragma%5BNNode%5D%2Cbool%2Cstring"><span class="Identifier">mkProcDeclNode</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">head</span><span class="Other">:</span> <span class="Identifier">NNode</span><span class="Other">;</span> <span class="Identifier">rtype</span><span class="Other">:</span> <a href="hnimast.html#NType"><span class="Identifier">NType</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">args</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span>
+<a id="newProcDeclNode,NNode,NType[NNode],openArray[tuple[string,NType[NNode]]],NNode,Pragma[NNode],bool,string"></a>
+<dt><pre><span class="Keyword">func</span> <a href="#newProcDeclNode%2CNNode%2CNType%5BNNode%5D%2CopenArray%5Btuple%5Bstring%2CNType%5BNNode%5D%5D%5D%2CNNode%2CPragma%5BNNode%5D%2Cbool%2Cstring"><span class="Identifier">newProcDeclNode</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">head</span><span class="Other">:</span> <span class="Identifier">NNode</span><span class="Other">;</span> <span class="Identifier">rtype</span><span class="Other">:</span> <a href="hnimast.html#NType"><span class="Identifier">NType</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">args</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span>
     <span class="Keyword">tuple</span><span class="Other">[</span><span class="Identifier">name</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">,</span> <span class="Identifier">atype</span><span class="Other">:</span> <a href="hnimast.html#NType"><span class="Identifier">NType</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span><span class="Other">]</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">impl</span><span class="Other">:</span> <span class="Identifier">NNode</span><span class="Other">;</span>
-                          <span class="Identifier">pragma</span><span class="Other">:</span> <a href="hnimast.html#Pragma"><span class="Identifier">Pragma</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span> <span class="Other">=</span> <a href="hnimast.html#Pragma"><span class="Identifier">Pragma</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span><span class="Other">(</span><span class="Other">)</span><span class="Other">;</span>
-                          <span class="Identifier">exported</span><span class="Other">:</span> <span class="Identifier">bool</span> <span class="Other">=</span> <span class="Identifier">true</span><span class="Other">;</span> <span class="Identifier">comment</span><span class="Other">:</span> <span class="Identifier">string</span> <span class="Other">=</span> <span class="StringLit">&quot;&quot;</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">NNode</span></pre></dt>
+                           <span class="Identifier">pragma</span><span class="Other">:</span> <a href="hnimast.html#Pragma"><span class="Identifier">Pragma</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span> <span class="Other">=</span> <a href="hnimast.html#Pragma"><span class="Identifier">Pragma</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span><span class="Other">(</span><span class="Other">)</span><span class="Other">;</span>
+                           <span class="Identifier">exported</span><span class="Other">:</span> <span class="Identifier">bool</span> <span class="Other">=</span> <span class="Identifier">true</span><span class="Other">;</span> <span class="Identifier">comment</span><span class="Other">:</span> <span class="Identifier">string</span> <span class="Other">=</span> <span class="StringLit">&quot;&quot;</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">NNode</span></pre></dt>
 <dd>
 
 
 
 </dd>
-<a id="mkProcDeclNode,NNode,openArray[tuple[string,NType[NNode],NVarDeclKind]],NNode,Pragma[NNode],bool,string"></a>
-<dt><pre><span class="Keyword">func</span> <a href="#mkProcDeclNode%2CNNode%2CopenArray%5Btuple%5Bstring%2CNType%5BNNode%5D%2CNVarDeclKind%5D%5D%2CNNode%2CPragma%5BNNode%5D%2Cbool%2Cstring"><span class="Identifier">mkProcDeclNode</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">head</span><span class="Other">:</span> <span class="Identifier">NNode</span><span class="Other">;</span> <span class="Identifier">args</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span>
+<a id="newProcDeclNode,NNode,openArray[tuple[string,NType[NNode],NVarDeclKind]],NNode,Pragma[NNode],bool,string"></a>
+<dt><pre><span class="Keyword">func</span> <a href="#newProcDeclNode%2CNNode%2CopenArray%5Btuple%5Bstring%2CNType%5BNNode%5D%2CNVarDeclKind%5D%5D%2CNNode%2CPragma%5BNNode%5D%2Cbool%2Cstring"><span class="Identifier">newProcDeclNode</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">head</span><span class="Other">:</span> <span class="Identifier">NNode</span><span class="Other">;</span> <span class="Identifier">args</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span>
     <span class="Keyword">tuple</span><span class="Other">[</span><span class="Identifier">name</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">,</span> <span class="Identifier">atype</span><span class="Other">:</span> <a href="hnimast.html#NType"><span class="Identifier">NType</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">nvd</span><span class="Other">:</span> <a href="hnimast.html#NVarDeclKind"><span class="Identifier">NVarDeclKind</span></a><span class="Other">]</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">impl</span><span class="Other">:</span> <span class="Identifier">NNode</span><span class="Other">;</span>
-                          <span class="Identifier">pragma</span><span class="Other">:</span> <a href="hnimast.html#Pragma"><span class="Identifier">Pragma</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span> <span class="Other">=</span> <a href="hnimast.html#Pragma"><span class="Identifier">Pragma</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span><span class="Other">(</span><span class="Other">)</span><span class="Other">;</span>
-                          <span class="Identifier">exported</span><span class="Other">:</span> <span class="Identifier">bool</span> <span class="Other">=</span> <span class="Identifier">true</span><span class="Other">;</span> <span class="Identifier">comment</span><span class="Other">:</span> <span class="Identifier">string</span> <span class="Other">=</span> <span class="StringLit">&quot;&quot;</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">NNode</span></pre></dt>
+                           <span class="Identifier">pragma</span><span class="Other">:</span> <a href="hnimast.html#Pragma"><span class="Identifier">Pragma</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span> <span class="Other">=</span> <a href="hnimast.html#Pragma"><span class="Identifier">Pragma</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span><span class="Other">(</span><span class="Other">)</span><span class="Other">;</span>
+                           <span class="Identifier">exported</span><span class="Other">:</span> <span class="Identifier">bool</span> <span class="Other">=</span> <span class="Identifier">true</span><span class="Other">;</span> <span class="Identifier">comment</span><span class="Other">:</span> <span class="Identifier">string</span> <span class="Other">=</span> <span class="StringLit">&quot;&quot;</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">NNode</span></pre></dt>
 <dd>
 
 
@@ -1885,8 +2102,8 @@ Generate check for object <tt class="docutils literal"><span class="pre">self</s
 
 
 </dd>
-<a id="mkOType,string,seq[string]"></a>
-<dt><pre><span class="Keyword">func</span> <a href="#mkOType%2Cstring%2Cseq%5Bstring%5D"><span class="Identifier">mkOType</span></a><span class="Other">(</span><span class="Identifier">name</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">gparams</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">string</span><span class="Other">]</span> <span class="Other">=</span> <span class="Operator">@</span><span class="Other">[</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="hnimast.html#NType"><span class="Identifier">NType</span></a><span class="Other">[</span><a href="hnimast.html#ObjTree"><span class="Identifier">ObjTree</span></a><span class="Other">]</span> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
+<a id="newOType,string,seq[string]"></a>
+<dt><pre><span class="Keyword">func</span> <a href="#newOType%2Cstring%2Cseq%5Bstring%5D"><span class="Identifier">newOType</span></a><span class="Other">(</span><span class="Identifier">name</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">gparams</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">string</span><span class="Other">]</span> <span class="Other">=</span> <span class="Operator">@</span><span class="Other">[</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="hnimast.html#NType"><span class="Identifier">NType</span></a><span class="Other">[</span><a href="hnimast.html#ObjTree"><span class="Identifier">ObjTree</span></a><span class="Other">]</span> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
     <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
 <dd>
 
@@ -2059,7 +2276,7 @@ Get range of subnodes from <tt class="docutils literal"><span class="pre">PNode<
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br/>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2020-08-27 14:13:56 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2020-08-29 10:41:45 UTC</small>
       </div>
     </div>
   </div>
