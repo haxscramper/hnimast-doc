@@ -187,7 +187,8 @@ function main() {
   comment*: string
   name*: string
   values*: seq[EnumField[NNode]]
-  exported*: bool"><wbr />Enum<span class="attachedType"></span></a></li>
+  exported*: bool
+  pragma*: Pragma[NNode]"><wbr />Enum<span class="attachedType"></span></a></li>
   <li><a class="reference" href="#NEnum"
     title="NEnum = Enum[NimNode]"><wbr />NEnum<span class="attachedType"></span></a></li>
   <li><a class="reference" href="#PEnum"
@@ -370,6 +371,10 @@ function main() {
     title="getStrVal(p: PNode): string"><wbr />get<wbr />Str<wbr />Val<span class="attachedType"></span></a></li>
   <li><a class="reference" href="#dropStmtList%2CPNode"
     title="dropStmtList(p: PNode): PNode"><wbr />drop<wbr />Stmt<wbr />List<span class="attachedType"></span></a></li>
+  <li><a class="reference" href="#toString%2CNimNode"
+    title="toString(n: NimNode): string"><wbr />to<wbr />String<span class="attachedType"></span></a></li>
+  <li><a class="reference" href="#toString%2CPNode"
+    title="toString(p: PNode): string"><wbr />to<wbr />String<span class="attachedType"></span></a></li>
   <li><a class="reference" href="#subnodes%2CPNode"
     title="subnodes(p: PNode): seq[PNode]"><wbr />subnodes<span class="attachedType"></span></a></li>
   <li><a class="reference" href="#subnodes%2CNimNode"
@@ -436,6 +441,8 @@ function main() {
     title="getElem(pragma: NPragma; name: string): Option[NimNode]"><wbr />get<wbr />Elem<span class="attachedType">NPragma</span></a></li>
   <li><a class="reference" href="#getElem%2COption%5BNPragma%5D%2Cstring"
     title="getElem(optPragma: Option[NPragma]; name: string): Option[NimNode]"><wbr />get<wbr />Elem<span class="attachedType">NPragma</span></a></li>
+  <li><a class="reference" href="#len%2CPragma%5BNNode%5D"
+    title="len[NNode](pragma: Pragma[NNode]): int"><wbr />len<span class="attachedType">Pragma</span></a></li>
   <li><a class="reference" href="#newNNPragma"
     title="newNNPragma[NNode](): Pragma[NNode]"><wbr />new<wbr />NNPragma<span class="attachedType">Pragma</span></a></li>
   <li><a class="reference" href="#newNPragma%2Cvarargs%5Bstring%5D"
@@ -450,6 +457,8 @@ function main() {
     title="toNNode[NNode](pragma: Pragma[NNode]): NNode"><wbr />to<wbr />NNode<span class="attachedType">Pragma</span></a></li>
   <li><a class="reference" href="#toNimNode%2CNPragma"
     title="toNimNode(pragma: NPragma): NimNode"><wbr />to<wbr />Nim<wbr />Node<span class="attachedType">NPragma</span></a></li>
+  <li><a class="reference" href="#arg%2CNType%5BNNode%5D%2Cint"
+    title="arg[NNode](t: NType[NNode]; idx: int): NIdentDefs[NNode]"><wbr />arg<span class="attachedType">NType</span></a></li>
   <li><a class="reference" href="#%3D%3D%2CNType%2CNType"
     title="`==`(l, r: NType): bool"><wbr />`==`<span class="attachedType">NType</span></a></li>
   <li><a class="reference" href="#rType%3D%2CNType%5BNNode%5D%2CNType%5BNNode%5D"
@@ -515,8 +524,8 @@ function main() {
             args: seq[NimNode]): NimNode"><wbr />new<wbr />Call<wbr />Node<span class="attachedType">NType</span></a></li>
   <li><a class="reference" href="#toNTypeAst"
     title="toNTypeAst[T](): NType"><wbr />to<wbr />NType<wbr />Ast<span class="attachedType">NType</span></a></li>
-  <li><a class="reference" href="#%24%2CNType"
-    title="`$`(nt: NType): string"><wbr />`$`<span class="attachedType">NType</span></a></li>
+  <li><a class="reference" href="#%24%2CNType%5BNNode%5D"
+    title="`$`[NNode](nt: NType[NNode]): string"><wbr />`$`<span class="attachedType">NType</span></a></li>
   <li><a class="reference" href="#isEnum%2CNimNode"
     title="isEnum(en: NimNode): bool"><wbr />is<wbr />Enum<span class="attachedType"></span></a></li>
   <li><a class="reference" href="#makeEnumField%2Cstring%2COption%5BNNode%5D%2Cstring"
@@ -860,6 +869,7 @@ Identifier declaration
   <span class="Identifier">name</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">string</span>
   <span class="Identifier">values</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><a href="hnimast.html#EnumField"><span class="Identifier">EnumField</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span><span class="Other">]</span>
   <span class="Identifier">exported</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">bool</span>
+  <span class="Identifier">pragma</span><span class="Operator">*</span><span class="Other">:</span> <a href="hnimast.html#Pragma"><span class="Identifier">Pragma</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span>
 </pre></dt>
 <dd>
 
@@ -1237,6 +1247,20 @@ Get string value from <tt class="docutils literal"><span class="pre">PNode</span
 
 
 </dd>
+<a id="toString,NimNode"></a>
+<dt><pre><span class="Keyword">func</span> <a href="#toString%2CNimNode"><span class="Identifier">toString</span></a><span class="Other">(</span><span class="Identifier">n</span><span class="Other">:</span> <span class="Identifier">NimNode</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">string</span> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
+<dd>
+
+Convert any node to string without side effects
+
+</dd>
+<a id="toString,PNode"></a>
+<dt><pre><span class="Keyword">func</span> <a href="#toString%2CPNode"><span class="Identifier">toString</span></a><span class="Other">(</span><span class="Identifier">p</span><span class="Other">:</span> <span class="Identifier">PNode</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">string</span> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">Exception</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">RootEffect</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
+<dd>
+
+Convert any node to string without side effects
+
+</dd>
 <a id="subnodes,PNode"></a>
 <dt><pre><span class="Keyword">func</span> <a href="#subnodes%2CPNode"><span class="Identifier">subnodes</span></a><span class="Other">(</span><span class="Identifier">p</span><span class="Other">:</span> <span class="Identifier">PNode</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">PNode</span><span class="Other">]</span> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
 <dd>
@@ -1471,6 +1495,13 @@ Get element named <tt class="docutils literal"><span class="pre">name</span></tt
 Get element from optional annotation
 
 </dd>
+<a id="len,Pragma[NNode]"></a>
+<dt><pre><span class="Keyword">func</span> <a href="#len%2CPragma%5BNNode%5D"><span class="Identifier">len</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">pragma</span><span class="Other">:</span> <a href="hnimast.html#Pragma"><span class="Identifier">Pragma</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">int</span></pre></dt>
+<dd>
+
+
+
+</dd>
 <a id="newNNPragma"></a>
 <dt><pre><span class="Keyword">func</span> <a href="#newNNPragma"><span class="Identifier">newNNPragma</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span><span class="Other">(</span><span class="Other">)</span><span class="Other">:</span> <a href="hnimast.html#Pragma"><span class="Identifier">Pragma</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span></pre></dt>
 <dd>
@@ -1518,6 +1549,13 @@ Convert pragma to <tt class="docutils literal"><span class="pre">NNode</span></t
 <dd>
 
 Convert pragma to nim node. If pragma contains no elements <tt class="docutils literal"><span class="pre">EmptyNode</span></tt> is generated.
+
+</dd>
+<a id="arg,NType[NNode],int"></a>
+<dt><pre><span class="Keyword">func</span> <a href="#arg%2CNType%5BNNode%5D%2Cint"><span class="Identifier">arg</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">t</span><span class="Other">:</span> <a href="hnimast.html#NType"><span class="Identifier">NType</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">idx</span><span class="Other">:</span> <span class="Identifier">int</span><span class="Other">)</span><span class="Other">:</span> <a href="hnimast.html#NIdentDefs"><span class="Identifier">NIdentDefs</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span></pre></dt>
+<dd>
+
+
 
 </dd>
 <a id="==,NType,NType"></a>
@@ -1745,8 +1783,8 @@ Create call node <tt class="docutils literal"><span class="pre">dotHead.name[@ge
 
 
 </dd>
-<a id="$,NType"></a>
-<dt><pre><span class="Keyword">func</span> <a href="#%24%2CNType"><span class="Identifier">`$`</span></a><span class="Other">(</span><span class="Identifier">nt</span><span class="Other">:</span> <a href="hnimast.html#NType"><span class="Identifier">NType</span></a><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">string</span></pre></dt>
+<a id="$,NType[NNode]"></a>
+<dt><pre><span class="Keyword">func</span> <a href="#%24%2CNType%5BNNode%5D"><span class="Identifier">`$`</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">nt</span><span class="Other">:</span> <a href="hnimast.html#NType"><span class="Identifier">NType</span></a><span class="Other">[</span><span class="Identifier">NNode</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">string</span></pre></dt>
 <dd>
 
 Convert <tt class="docutils literal"><span class="pre">NType</span></tt> to texual representation
@@ -2276,7 +2314,7 @@ Get range of subnodes from <tt class="docutils literal"><span class="pre">PNode<
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br/>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2020-08-29 10:41:45 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2020-08-31 15:24:23 UTC</small>
       </div>
     </div>
   </div>
